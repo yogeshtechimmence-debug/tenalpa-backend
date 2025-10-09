@@ -11,7 +11,7 @@ router.post("/register", uploadUserImage.single("image"), registerUser);
 
 router.post("/login", loginUser);
 
-router.get("/getProfile/:id", getProfile);
+router.get("/getProfile", getProfile);
 
 export default router;
 

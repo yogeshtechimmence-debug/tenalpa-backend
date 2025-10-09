@@ -64,8 +64,8 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Auto Increment ID
-    const lastUser = await User.findOne().sort({ id: -1 }); 
-    const newId = lastUser ? lastUser.id + 1 : 1; 
+    const lastUser = await User.findOne().sort({ id: -1 });
+    const newId = lastUser ? lastUser.id + 1 : 1;
 
     // Create new user
     const newUser = new User({
@@ -173,19 +173,20 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// GET PROFILE
+// PROFILE
 export const getProfile = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { userId } = req.query; // ✅ get from query param
 
-    if (!id) {
+    if (!userId) {
       return res.status(400).json({
         status: "0",
-        message: "User ID is required",
+        message: "User ID (userId) is required",
       });
     }
 
-    const user = await User.findOne({ id }).select("-password");
+    // 🔍 Find user by numeric 'id' (not _id)
+    const user = await User.findOne({ id: Number(userId) }).select("-password");
 
     if (!user) {
       return res.status(404).json({
