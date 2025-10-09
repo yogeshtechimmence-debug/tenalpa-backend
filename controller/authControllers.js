@@ -20,13 +20,10 @@ export const registerUser = async (req, res) => {
       register_id,
       ios_register_id,
       status,
-      exp_date,
-    } = req.body;
+    } = req.query; // ✅ yaha query se liya body ki jagah
 
-    // Image from multer
     const image = req.file ? `/uploads/UserImage/${req.file.filename}` : "";
 
-    // Validate fields
     if (
       !first_name ||
       !last_name ||
@@ -43,31 +40,29 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    //  Check duplicates
+    // Check duplicates
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      return res
-        .status(400)
-        .json({ status: "0", message: "Email already exists" });
+      return res.status(400).json({
+        status: "0",
+        message: "Email already exists",
+      });
     }
 
     const existingMobile = await User.findOne({ mobile });
     if (existingMobile) {
-      return res
-        .status(400)
-        .json({ status: "0", message: "Mobile already exists" });
+      return res.status(400).json({
+        status: "0",
+        message: "Mobile already exists",
+      });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Auto Increment ID
     const lastUser = await User.findOne().sort({ id: -1 });
     const newId = lastUser ? lastUser.id + 1 : 1;
 
-    // Create new user
     const newUser = new User({
-      id: newId, //  auto-incremented
+      id: newId,
       first_name,
       last_name,
       abn_number,
@@ -88,7 +83,6 @@ export const registerUser = async (req, res) => {
       status: status
         ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
         : "Active",
-      exp_date: exp_date || "",
       date_time: new Date().toISOString(),
     });
 
@@ -113,63 +107,6 @@ export const registerUser = async (req, res) => {
 };
 
 // LOGIN
-// export const loginUser = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     if (!email || !password) {
-//       return res.status(400).json({
-//         status: "0",
-//         message: "Email and Password are required",
-//       });
-//     }
-
-//     // Find user by email
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(401).json({
-//         status: "0",
-//         message: "Please enter correct email",
-//       });
-//     }
-
-//     // Compare password
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(401).json({
-//         status: "0",
-//         message: "Password is incorrect",
-//       });
-//     }
-
-//     // 4️⃣ Generate JWT token
-//     const token = jwt.sign(
-//       { id: user._id, email: user.email },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "7d" }
-//     );
-
-//     // 5️⃣ Prepare user response
-//     const userResponse = user.toObject();
-//     delete userResponse.password;
-
-//     res.status(200).json({
-//       status: "1",
-//       message: "Login successful",
-//       result: userResponse,
-//       token: token,
-//     });
-//   } catch (error) {
-//     console.error("Login error:", error);
-
-//     res.status(500).json({
-//       status: "0",
-//       message: "Server error",
-//       error: error.message,
-//     });
-//   }
-// };
-
 export const loginUser = async (req, res) => {
   try {
     // 🔹 email aur password query se lo

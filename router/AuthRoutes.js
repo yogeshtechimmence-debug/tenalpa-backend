@@ -7,7 +7,7 @@ const router = express.Router();
 
 const uploadUserImage = createMulter("UserImage"); // Folder: uploads/user/
 
-router.post("/register", uploadUserImage.single("image"), registerUser);
+router.get("/register", uploadUserImage.single("image"), registerUser);
 
 router.get("/login", loginUser);
 
