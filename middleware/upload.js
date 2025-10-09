@@ -11,7 +11,7 @@ const createMulter = (folderName) => {
   const uploadPath = path.join(process.cwd(), "uploads", folderName);
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
-    console.log(`✅ uploads/${folderName} folder created automatically`);
+    console.log(`uploads/${folderName} folder created automatically`);
   }
 
   // Storage configuration

@@ -22,6 +22,6 @@ MongoDb();
 app.use("/tenalpa/api/auth", authRoutes);
 
 
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
    console.log(chalk.green(`Server Started ${figures.tick}`));
 });

@@ -2,273 +2,125 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../Model/AuthModel.js";
 
-// // 🔹 REGISTER
-// export const registerUser = async (req, res) => {
-//   try {
-//     const {
-//       full_name,
-//       business_name,
-//       abn_number,
-//       email_address,
-//       contact,
-//       address,
-//       password,
-//       confirm_password,
-//     } = req.body;
-
-//     // Image file path from multer
-//     const user_image = req.file ? `/uploads/UserImage/${req.file.filename}` : "";
-
-
-//     // 1️⃣ Check required fields
-//     if (
-//       !full_name ||
-//       !business_name ||
-//       !abn_number ||
-//       !email_address ||
-//       !contact ||
-//       !address ||
-//       !password ||
-//       !confirm_password
-//     ) {
-//       return res.status(400).json({
-//         status: "0",
-//         message: "All fields are required",
-//       });
-//     }
-
-//     // 2️⃣ Check password match
-//     if (password !== confirm_password) {
-//       return res.status(400).json({
-//         status: "0",
-//         message: "Password and Confirm Password do not match",
-//       });
-//     }
-
-//     // 3️⃣ Check if user exists
-//     const existingUser = await User.findOne({ email_address });
-//     if (existingUser) {
-//       return res.status(400).json({
-//         status: "0",
-//         message: "Email already exists",
-//       });
-//     }
-
-//     // 4️⃣ Hash password
-//     const hashPassword = await bcrypt.hash(password, 10);
-
-//     // 5️⃣ Save user
-//     const newUser = new User({
-//       user_image,
-//       full_name,
-//       business_name,
-//       abn_number,
-//       email_address,
-//       contact,
-//       address,
-//       password: hashPassword,
-//     });
-
-//     const savedUser = await newUser.save();
-
-//     res.status(201).json({
-//       status: "1",
-//       message: "User registered successfully",
-//       result: savedUser,
-//     });
-//   } catch (error) {
-//     console.error("Register error:", error);
-//     res.status(500).json({
-//       status: "0",
-//       message: "Server error",
-//     });
-//   }
-// };
-
-
+// REGISTER
 export const registerUser = async (req, res) => {
   try {
     const {
-      full_name,
-      business_name,
+      first_name,
+      last_name,
       abn_number,
-      email_address,
-      contact,
-      address,
+      business_name,
+      mobile,
+      email,
       password,
-      confirm_password,
+      address,
+      lat,
+      lon,
+      type,
+      register_id,
+      ios_register_id,
+      status,
+      exp_date,
     } = req.body;
 
-    // Image file path from multer
-    const user_image = req.file ? `/uploads/UserImage/${req.file.filename}` : "";
+    // Image from multer
+    const image = req.file
+      ? `https://tenalpa-backend.onrender.com/uploads/UserImage/${req.file.filename}`
+      : "";
 
-    // 1️⃣ Check required fields
+    // Validate fields
     if (
-      !full_name ||
-      !business_name ||
+      !first_name ||
+      !last_name ||
       !abn_number ||
-      !email_address ||
-      !contact ||
-      !address ||
+      !business_name ||
+      !mobile ||
+      !email ||
       !password ||
-      !confirm_password
+      !address
     ) {
       return res.status(400).json({
         status: "0",
-        message: "All fields are required",
+        message: "All required fields must be filled",
       });
     }
 
-    // 2️⃣ Check password match
-    if (password !== confirm_password) {
-      return res.status(400).json({
-        status: "0",
-        message: "Password and Confirm Password do not match",
-      });
-    }
-
-    // 3️⃣ Check if email exists
-    const existingEmail = await User.findOne({ email_address });
+    //  Check duplicates
+    const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      return res.status(400).json({
-        status: "0",
-        message: "Email already exists",
-      });
+      return res
+        .status(400)
+        .json({ status: "0", message: "Email already exists" });
     }
 
-    // 3️⃣ Check if email exists
-    const existingContact = await User.findOne({ contact });
-    if (existingContact) {
-      return res.status(400).json({
-        status: "0",
-        message: "Contact already exists",
-      });
+    const existingMobile = await User.findOne({ mobile });
+    if (existingMobile) {
+      return res
+        .status(400)
+        .json({ status: "0", message: "Mobile already exists" });
     }
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Auto Increment ID
+    const lastUser = await User.findOne().sort({ id: -1 }); 
+    const newId = lastUser ? lastUser.id + 1 : 1; 
 
-    // 4️⃣ Check if ABN number exists
-    const existingABN = await User.findOne({ abn_number });
-    if (existingABN) {
-      return res.status(400).json({
-        status: "0",
-        message: "ABN number already exists",
-      });
-    }
-
-    // 5️⃣ Hash passwords
-    const hashPassword = await bcrypt.hash(password, 10);
-    const hashConfirmPassword = await bcrypt.hash(confirm_password, 10);
-
-    // 6️⃣ Save user
+    // Create new user
     const newUser = new User({
-      user_image,
-      full_name,
-      business_name,
+      id: newId, //  auto-incremented
+      first_name,
+      last_name,
       abn_number,
-      email_address,
-      contact,
+      business_name,
+      mobile,
+      email,
+      password: hashedPassword,
+      image,
+      type:
+        type && ["USER", "VENDOR"].includes(type.toUpperCase())
+          ? type.toUpperCase()
+          : "USER",
+      lat: lat || "0.0",
+      lon: lon || "0.0",
       address,
-      password: hashPassword,
-      confirm_password: hashConfirmPassword,
+      register_id: register_id || "",
+      ios_register_id: ios_register_id || "",
+      status: status
+        ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+        : "Active",
+      exp_date: exp_date || "",
+      date_time: new Date().toISOString(),
     });
 
     const savedUser = await newUser.save();
 
-    // 7️⃣ Remove passwords from response
     const userResponse = savedUser.toObject();
     delete userResponse.password;
-    delete userResponse.confirm_password;
 
     res.status(201).json({
       status: "1",
       message: "User registered successfully",
       result: userResponse,
     });
-
   } catch (error) {
     console.error("Register error:", error);
-    
-    // Handle duplicate key errors
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern)[0];
-      return res.status(400).json({
-        status: "0",
-        message: `${field} already exists`
-      });
-    }
-
-    // Handle validation errors
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({
-        status: "0",
-        message: errors.join(', ')
-      });
-    }
-
     res.status(500).json({
       status: "0",
       message: "Server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// 🔹 LOGIN
-// export const loginUser = async (req, res) => {
-//   try {
-//     const { email_address, password } = req.body;
-
-//     if (!email_address || !password) {
-//       return res.status(400).json({
-//         status: "0",
-//         message: "Email and Password are required",
-//       });
-//     }
-
-//     const user = await User.findOne({ email_address });
-//     if (!user) {
-//       return res.status(400).json({
-//         status: "0",
-//         message: "Invalid email or password",
-//       });
-//     }
-
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(400).json({
-//         status: "0",
-//         message: "Invalid email or password",
-//       });
-//     }
-
-//     const token = jwt.sign(
-//       { id: user._id },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "7d" }
-//     );
-
-//     res.status(200).json({
-//       status: "1",
-//       message: "Login successful",
-//       result: { user, token },
-//     });
-//   } catch (error) {
-//     console.error("Login error:", error);
-//     res.status(500).json({
-//       status: "0",
-//       message: "Server error",
-//     });
-//   }
-// };
-
+// LOGIN
 export const loginUser = async (req, res) => {
   try {
-    const { email_address, password } = req.body;
+    const { email, password } = req.body;
 
-    // 1️⃣ Check if email and password are provided
-    if (!email_address || !password) {
+    // 1️⃣ Check if both fields provided
+    if (!email || !password) {
       return res.status(400).json({
         status: "0",
         message: "Email and Password are required",
@@ -276,7 +128,7 @@ export const loginUser = async (req, res) => {
     }
 
     // 2️⃣ Find user by email
-    const user = await User.findOne({ email_address });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
         status: "0",
@@ -284,7 +136,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 3️⃣ Compare passwords
+    // 3️⃣ Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -295,51 +147,64 @@ export const loginUser = async (req, res) => {
 
     // 4️⃣ Generate JWT token
     const token = jwt.sign(
-      { 
-        id: user._id,
-        email: user.email_address 
-      },
+      { id: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // 5️⃣ Remove passwords from user object
+    // 5️⃣ Prepare user response
     const userResponse = user.toObject();
     delete userResponse.password;
-    delete userResponse.confirm_password;
 
     res.status(200).json({
       status: "1",
       message: "Login successful",
-      result: { 
-        user: userResponse, 
-        token 
-      },
+      result: userResponse,
+      token: token,
     });
-
   } catch (error) {
     console.error("Login error:", error);
-    
-    // Handle JWT errors
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        status: "0",
-        message: "Invalid token"
-      });
-    }
-
-    // Handle token expiration
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        status: "0",
-        message: "Token expired"
-      });
-    }
 
     res.status(500).json({
       status: "0",
       message: "Server error",
-      error: error.message
+      error: error.message,
+    });
+  }
+};
+
+// GET PROFILE
+export const getProfile = async (req, res) => {
+  try {
+    const { id } = req.params; 
+
+    if (!id) {
+      return res.status(400).json({
+        status: "0",
+        message: "User ID is required",
+      });
+    }
+
+    const user = await User.findOne({ id }).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        status: "0",
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "1",
+      message: "Profile fetched successfully",
+      result: user,
+    });
+  } catch (error) {
+    console.error("Get profile error:", error);
+    res.status(500).json({
+      status: "0",
+      message: "Server error",
+      error: error.message,
     });
   }
 };
