@@ -15,15 +15,23 @@ const createMulter = (folderName) => {
   }
 
   // Storage configuration
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-      const uniqueName = Date.now() + "-" + file.originalname;
-      cb(null, uniqueName);
-    },
-  });
+ const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const fileDate = new Date();
+    const day = String(fileDate.getDate()).padStart(2, '0');
+    const month = String(fileDate.getMonth() + 1).padStart(2, '0');
+    const year = fileDate.getFullYear();
+    const hours = String(fileDate.getHours()).padStart(2, '0');
+    const minutes = String(fileDate.getMinutes()).padStart(2, '0');
+    const seconds = String(fileDate.getSeconds()).padStart(2, '0');
+
+    const uniqueName = `USER-IMG-${day}-${month}-${year}_${hours}-${minutes}-${seconds}_${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
 
   // Optional file filter
   const fileFilter = (req, file, cb) => {

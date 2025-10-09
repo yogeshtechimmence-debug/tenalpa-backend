@@ -25,7 +25,7 @@ export const registerUser = async (req, res) => {
 
     // Image from multer
     const image = req.file
-      ? `https://tenalpa-backend.onrender.com/uploads/UserImage/${req.file.filename}`
+      ? `/uploads/UserImage/${req.file.filename}`
       : "";
 
     // Validate fields
@@ -176,17 +176,17 @@ export const loginUser = async (req, res) => {
 // PROFILE
 export const getProfile = async (req, res) => {
   try {
-    const { userId } = req.query; // ✅ get from query param
+    const { user_id } = req.query; 
 
-    if (!userId) {
+    if (!user_id) {
       return res.status(400).json({
         status: "0",
-        message: "User ID (userId) is required",
+        message: "User ID (user_id) is required",
       });
     }
 
-    // 🔍 Find user by numeric 'id' (not _id)
-    const user = await User.findOne({ id: Number(userId) }).select("-password");
+    // Find user by numeric 'id' (not _id)
+    const user = await User.findOne({ id: Number(user_id) }).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -202,6 +202,53 @@ export const getProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Get profile error:", error);
+    res.status(500).json({
+      status: "0",
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// UPDATE PROFILE
+export const updateProfile = async (req, res) => {
+  try {
+    const { user_id } = req.query; // user_id query se lo
+    const updateData = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        status: "0",
+        message: "User ID (user_id) is required",
+      });
+    }
+
+    // 🖼️ Agar image upload ki gayi hai (multer se)
+    if (req.file) {
+      updateData.image = `/uploads/UserImage/${req.file.filename}`;
+    }
+
+    // 🔍 Update user by id (not _id)
+    const updatedUser = await User.findOneAndUpdate(
+      { id: Number(user_id) },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        status: "0",
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "1",
+      message: "Profile updated successfully",
+      result: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
     res.status(500).json({
       status: "0",
       message: "Server error",
