@@ -24,9 +24,7 @@ export const registerUser = async (req, res) => {
     } = req.body;
 
     // Image from multer
-    const image = req.file
-      ? `/uploads/UserImage/${req.file.filename}`
-      : "";
+    const image = req.file ? `/uploads/UserImage/${req.file.filename}` : "";
 
     // Validate fields
     if (
@@ -115,11 +113,68 @@ export const registerUser = async (req, res) => {
 };
 
 // LOGIN
+// export const loginUser = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     if (!email || !password) {
+//       return res.status(400).json({
+//         status: "0",
+//         message: "Email and Password are required",
+//       });
+//     }
+
+//     // Find user by email
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(401).json({
+//         status: "0",
+//         message: "Please enter correct email",
+//       });
+//     }
+
+//     // Compare password
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         status: "0",
+//         message: "Password is incorrect",
+//       });
+//     }
+
+//     // 4️⃣ Generate JWT token
+//     const token = jwt.sign(
+//       { id: user._id, email: user.email },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     // 5️⃣ Prepare user response
+//     const userResponse = user.toObject();
+//     delete userResponse.password;
+
+//     res.status(200).json({
+//       status: "1",
+//       message: "Login successful",
+//       result: userResponse,
+//       token: token,
+//     });
+//   } catch (error) {
+//     console.error("Login error:", error);
+
+//     res.status(500).json({
+//       status: "0",
+//       message: "Server error",
+//       error: error.message,
+//     });
+//   }
+// };
+
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    // 🔹 email aur password query se lo
+    const { email, password } = req.query;
 
-    // 1️⃣ Check if both fields provided
     if (!email || !password) {
       return res.status(400).json({
         status: "0",
@@ -127,35 +182,36 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 2️⃣ Find user by email
+    // 🔹 Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
         status: "0",
-        message: "Invalid email or password",
+        message: "Please enter correct email",
       });
     }
 
-    // 3️⃣ Compare password
+    // 🔹 Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
         status: "0",
-        message: "Invalid email or password",
+        message: "Password is incorrect",
       });
     }
 
-    // 4️⃣ Generate JWT token
+    // 🔹 Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // 5️⃣ Prepare user response
+    // 🔹 Prepare user response
     const userResponse = user.toObject();
     delete userResponse.password;
 
+    // 🔹 Send success response
     res.status(200).json({
       status: "1",
       message: "Login successful",
@@ -176,7 +232,7 @@ export const loginUser = async (req, res) => {
 // PROFILE
 export const getProfile = async (req, res) => {
   try {
-    const { user_id } = req.query; 
+    const { user_id } = req.query;
 
     if (!user_id) {
       return res.status(400).json({
@@ -186,7 +242,9 @@ export const getProfile = async (req, res) => {
     }
 
     // Find user by numeric 'id' (not _id)
-    const user = await User.findOne({ id: Number(user_id) }).select("-password");
+    const user = await User.findOne({ id: Number(user_id) }).select(
+      "-password"
+    );
 
     if (!user) {
       return res.status(404).json({
@@ -213,7 +271,7 @@ export const getProfile = async (req, res) => {
 // UPDATE PROFILE
 export const updateProfile = async (req, res) => {
   try {
-    const { user_id } = req.query; // user_id query se lo
+    const { user_id } = req.query;
     const updateData = req.body;
 
     if (!user_id) {
@@ -223,12 +281,10 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    // 🖼️ Agar image upload ki gayi hai (multer se)
     if (req.file) {
       updateData.image = `/uploads/UserImage/${req.file.filename}`;
     }
 
-    // 🔍 Update user by id (not _id)
     const updatedUser = await User.findOneAndUpdate(
       { id: Number(user_id) },
       { $set: updateData },
