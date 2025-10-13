@@ -4,44 +4,41 @@ import fs from "fs";
 
 /**
  * Reusable multer setup
- * @param {String} folderName - folder inside /uploads (e.g. 'banner', 'user', 'product')
+ * @param {String} mainFolder - Main folder (e.g. 'UserImage' or 'VendorImage')
+ * @param {String} subFolder - Optional subfolder inside main folder (e.g. 'profileImage')
  */
-const createMulter = (folderName) => {
-  // Ensure folder exists
-  const uploadPath = path.join(process.cwd(), "uploads", folderName);
+const createMulter = (mainFolder, subFolder = "") => {
+  // ✅ Build full upload path
+  const uploadPath = subFolder
+    ? path.join(process.cwd(), "uploads", mainFolder, subFolder)
+    : path.join(process.cwd(), "uploads", mainFolder);
+
+  // ✅ Ensure folders exist
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
-    console.log(`uploads/${folderName} folder created automatically`);
+    console.log(`Created folder: uploads/${mainFolder}/${subFolder}`);
   }
 
-  // Storage configuration
- const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const fileDate = new Date();
-    const day = String(fileDate.getDate()).padStart(2, '0');
-    const month = String(fileDate.getMonth() + 1).padStart(2, '0');
-    const year = fileDate.getFullYear();
-    const hours = String(fileDate.getHours()).padStart(2, '0');
-    const minutes = String(fileDate.getMinutes()).padStart(2, '0');
-    const seconds = String(fileDate.getSeconds()).padStart(2, '0');
+  // ✅ Storage config
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadPath),
+    filename: (req, file, cb) => {
+      const now = new Date();
+      const timestamp = `${now.getDate()}-${
+        now.getMonth() + 1
+      }-${now.getFullYear()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
+      const cleanName = file.originalname.replace(/\s+/g, "_"); // remove spaces
+      const uniqueName = `${mainFolder.toUpperCase()}-${timestamp}_${cleanName}`;
+      cb(null, uniqueName);
+    },
+  });
 
-    const uniqueName = `USER-IMG-${day}-${month}-${year}_${hours}-${minutes}-${seconds}_${file.originalname}`;
-    cb(null, uniqueName);
-  },
-});
-
-  // Optional file filter
+  // ✅ File filter (only image types)
   const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
     const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedTypes.test(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only images (jpeg, jpg, png, webp) are allowed"));
-    }
+    if (allowedTypes.test(ext)) cb(null, true);
+    else cb(new Error("Only images (jpeg, jpg, png, webp) are allowed"));
   };
 
   return multer({ storage, fileFilter });

@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import User from "../Model/AuthModel.js";
+import User from "../../Model/UserModel/AuthModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -24,20 +24,20 @@ function hashOtp(otp) {
   return crypto.createHash("sha256").update(otp).digest("hex");
 }
 
-// 🟢 Forget Password - OTP send
+// Forget Password - OTP send
 export const forgetPassword = async (req, res) => {
   try {
-    const { mobile } = req.body;
+    const { email } = req.query;
 
-    if (!mobile) {
+    if (!email) {
       return res.status(400).json({
         status: "0",
-        message: "Mobile number are required",
+        message: "Email are required",
       });
     }
 
-    // User find by mobile 
-    const user = await User.findOne({ mobile });
+    // User find by mobile
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
         status: "0",
@@ -51,7 +51,7 @@ export const forgetPassword = async (req, res) => {
 
     // Save OTP and expiration
     user.otpHash = otpHash;
-    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
     // Send email with OTP
@@ -78,12 +78,12 @@ export const forgetPassword = async (req, res) => {
   }
 };
 
-// 🟢 Change Password - OTP verify and reset
+// Change Password - OTP verify and reset
 export const changePassword = async (req, res) => {
   try {
-    const { mobile, otp, new_password } = req.body;
+    const { email, otp, new_password } = req.query;
 
-    if (!mobile || !otp || !new_password) {
+    if (!email || !otp || !new_password) {
       return res.status(400).json({
         status: "0",
         message: "All fields are required",
@@ -91,7 +91,7 @@ export const changePassword = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ mobile });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
         status: "0",
@@ -102,15 +102,21 @@ export const changePassword = async (req, res) => {
 
     // OTP validation
     if (!user.otpHash || !user.otpExpires) {
-      return res.status(400).json({ status: "0", message: "OTP not requested", result: {} });
+      return res
+        .status(400)
+        .json({ status: "0", message: "OTP not requested", result: {} });
     }
 
     if (new Date() > user.otpExpires) {
-      return res.status(400).json({ status: "0", message: "OTP expired", result: {} });
+      return res
+        .status(400)
+        .json({ status: "0", message: "OTP expired", result: {} });
     }
 
     if (hashOtp(otp) !== user.otpHash) {
-      return res.status(400).json({ status: "0", message: "Invalid OTP", result: {} });
+      return res
+        .status(400)
+        .json({ status: "0", message: "Invalid OTP", result: {} });
     }
 
     // Reset password
@@ -126,7 +132,7 @@ export const changePassword = async (req, res) => {
     res.status(200).json({
       status: "1",
       message: "Password changed successfully",
-      result: { user_id: user.id, mobile: user.mobile },
+      result: { user_id: user.id, email: user.email },
     });
   } catch (error) {
     console.error("ChangePassword error:", error);

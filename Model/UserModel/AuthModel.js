@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     abn_number: { type: String, required: true },
     business_name: { type: String, required: true },
     mobile: { type: String, required: true, unique: true, trim: true },
+    mobile_with_code: { type: String },
     email: {
       type: String,
       required: true,
@@ -28,7 +29,6 @@ const userSchema = new mongoose.Schema(
     register_id: { type: String, default: "" },
     ios_register_id: { type: String, default: "" },
     status: { type: String, default: "Active" },
-    exp_date: { type: String, default: "" },
     date_time: { type: String, default: new Date().toISOString() },
     // OTP fields
     otpHash: { type: String },

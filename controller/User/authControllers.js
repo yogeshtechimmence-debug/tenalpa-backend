@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../Model/AuthModel.js";
+import User from "../../Model/UserModel/AuthModel.js";
 
 // REGISTER
 export const registerUser = async (req, res) => {
@@ -20,7 +20,7 @@ export const registerUser = async (req, res) => {
       register_id,
       ios_register_id,
       status,
-    } = req.query; // ✅ yaha query se liya body ki jagah
+    } = req.query;
 
     const image = req.file ? `/uploads/UserImage/${req.file.filename}` : "";
 
@@ -68,6 +68,7 @@ export const registerUser = async (req, res) => {
       abn_number,
       business_name,
       mobile,
+      mobile_with_code: `+91${mobile}`,
       email,
       password: hashedPassword,
       image,
@@ -110,9 +111,9 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     // 🔹 email aur password query se lo
-    const { email, password } = req.query;
+    const { email, type, password } = req.query;
 
-    if (!email || !password) {
+    if (!email || !password || !type) {
       return res.status(400).json({
         status: "0",
         message: "Email and Password are required",
@@ -120,7 +121,7 @@ export const loginUser = async (req, res) => {
     }
 
     // 🔹 Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, type });
     if (!user) {
       return res.status(401).json({
         status: "0",
@@ -208,8 +209,8 @@ export const getProfile = async (req, res) => {
 // UPDATE PROFILE
 export const updateProfile = async (req, res) => {
   try {
-    const { user_id } = req.query;
-    const updateData = req.body;
+    // 🔹 Get all data from query
+    const { user_id, ...updateData } = req.query;
 
     if (!user_id) {
       return res.status(400).json({
@@ -218,10 +219,12 @@ export const updateProfile = async (req, res) => {
       });
     }
 
+    // 🔹 If image uploaded using multer
     if (req.file) {
       updateData.image = `/uploads/UserImage/${req.file.filename}`;
     }
 
+    // 🔹 Update user
     const updatedUser = await User.findOneAndUpdate(
       { id: Number(user_id) },
       { $set: updateData },
@@ -235,6 +238,7 @@ export const updateProfile = async (req, res) => {
       });
     }
 
+    // ✅ Success response
     res.status(200).json({
       status: "1",
       message: "Profile updated successfully",
