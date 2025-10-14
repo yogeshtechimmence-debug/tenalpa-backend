@@ -22,7 +22,7 @@ export const registerUser = async (req, res) => {
       status,
     } = req.query;
 
-    const image = req.file ? `/uploads/UserImage/${req.file.filename}` : "";
+    const image = req.file ? `https://tenalpa-backend.onrender.com/uploads/UserImage/profileImage/${req.file.filename}` : "";
 
     if (
       !first_name ||

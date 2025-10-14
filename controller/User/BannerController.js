@@ -31,7 +31,7 @@ export const getBanners = async (req, res) => {
     const banners = await Banner.find().sort({ createdAt: -1 });
     res.status(200).json({
       message: "Banner fetch successfully",
-      banners,
+      result: banners,
     });
   } catch (error) {
     res.status(500).json({
