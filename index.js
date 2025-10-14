@@ -4,12 +4,13 @@ import dotenv from "dotenv";
 import MongoDb from "./util/db.js";
 import chalk from "chalk";
 import figures from "figures";
+import path from "path";
 import router from "./router/AllRoutes/AllRoutes.js";
 
 dotenv.config();
 const app = express();
 
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(cors());
 app.use(express.json());

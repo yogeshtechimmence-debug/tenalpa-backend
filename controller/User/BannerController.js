@@ -3,7 +3,9 @@ import Banner from "../../Model/UserModel/BannerModel.js";
 export const createBanner = async (req, res) => {
   try {
     const { name, description, userId } = req.query;
-    const image = req.file ? `/uploads/BannerImage/${req.file.filename}` : "";
+    const image = req.file
+      ? `https://tenalpa-backend.onrender.com/uploads/UserImage/bannerImage/${req.file.filename}`
+      : "";
 
     if (!name || !image || !description) {
       return res.status(400).json({ message: "All fields are required" });
