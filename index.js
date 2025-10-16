@@ -6,6 +6,7 @@ import chalk from "chalk";
 import figures from "figures";
 import path from "path";
 import router from "./router/AllRoutes/AllRoutes.js";
+import authRouter from "./router/authRoute.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 MongoDb();
 
 app.use("/tenalpa/api", router);
+app.use("/tenalpa/api", authRouter);
 
 app.listen(process.env.PORT, () => {
    console.log(chalk.green(`Server Started ${figures.tick}`));

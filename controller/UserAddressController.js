@@ -1,10 +1,10 @@
-import UserAddress from "../../Model/UserModel/UserAddressModel.js";
-import User from "../../Model/UserModel/AuthModel.js";
+import UserAddress from "../Model/UserAddressModel.js";
+import User from "../Model/UserAuthModel.js";
 
 // Add User Address
 export const addUserAddress = async (req, res) => {
   try {
-    const { user_id, area_name, neighborhood, zipcode } = req.query;
+    const { user_id, area_name, neighborhood, zipcode } = req.body;
 
     if (!user_id || !area_name || !neighborhood || !zipcode) {
       return res.status(400).json({
@@ -91,11 +91,12 @@ export const getUserAddressById = async (req, res) => {
 // Update user address
 export const updateUserAddress = async (req, res) => {
   try {
-    const { user_id, area_name, neighborhood, zipcode } = req.query;
+    const { user_id } = req.query;
+    const { area_name, neighborhood, zipcode } = req.body;
 
     // Validation
     if (!user_id) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         status: "0",
         message: "user_id is required",
       });

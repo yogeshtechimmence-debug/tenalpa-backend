@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import User from "../../Model/UserModel/AuthModel.js";
+import User from "../Model/UserAuthModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -27,7 +27,7 @@ function hashOtp(otp) {
 // Forget Password - OTP send
 export const forgetPassword = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email } = req.body;
 
     if (!email) {
       return res.status(400).json({
@@ -81,7 +81,7 @@ export const forgetPassword = async (req, res) => {
 // Change Password - OTP verify and reset
 export const changePassword = async (req, res) => {
   try {
-    const { email, otp, new_password } = req.query;
+    const { email, otp, new_password } = req.body;
 
     if (!email || !otp || !new_password) {
       return res.status(400).json({

@@ -2,7 +2,7 @@ import Banner from "../../Model/UserModel/BannerModel.js";
 
 export const createBanner = async (req, res) => {
   try {
-    const { name, description, userId } = req.query;
+    const { name, description, userId } = req.body;
     const image = req.file
       ? `https://tenalpa-backend.onrender.com/uploads/UserImage/bannerImage/${req.file.filename}`
       : "";

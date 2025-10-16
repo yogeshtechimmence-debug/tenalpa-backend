@@ -1,15 +1,5 @@
 import express from "express";
-import {
-  getProfile,
-  loginUser,
-  registerUser,
-  updateProfile,
-} from "../../controller/User/authControllers.js";
 import createMulter from "../../middleware/upload.js";
-import {
-  changePassword,
-  forgetPassword,
-} from "../../controller/User/authForgetPassword.js";
 import {
   createBanner,
   getBanners,
@@ -18,20 +8,11 @@ import {
   addUserAddress,
   getUserAddressById,
   updateUserAddress,
-} from "../../controller/User/UserAddressController.js";
+} from "../../controller/UserAddressController.js";
+import { createCategory, getAllCategories } from "../../controller/User/HomeCategory.js";
+import { AddSubCategory, GetSubCategory } from "../../controller/User/SubCategory.js";
 
 const router = express.Router();
-
-// ---------------- Auth Route -----------------------
-
-const UserProfile = createMulter("UserImage", "profileImage");
-
-router.post("/signup", UserProfile.single("image"), registerUser);
-router.get("/login", loginUser);
-router.get("/get_profile", getProfile);
-router.post("/update_profile", UserProfile.single("image"), updateProfile);
-router.post("/forgot_password", forgetPassword);
-router.post("/change_password", changePassword);
 
 // ---------------- Banner Route -----------------------
 
@@ -39,6 +20,20 @@ const BannerImage = createMulter("UserImage", "bannerImage");
 
 router.post("/add_banner", BannerImage.single("image"), createBanner);
 router.get("/get_banner", getBanners);
+
+// ---------------- Category Route -----------------------
+
+const CategoryImage = createMulter("UserImage", "categoryImage");
+
+router.post("/add_category", CategoryImage.single("image"), createCategory);
+router.get("/get_all_categories", getAllCategories);
+
+// ----------------Sub Category Route -----------------------
+
+const SubCategoryImage = createMulter("UserImage", "subCategoryImage");
+
+router.post("/add_sub_category", SubCategoryImage.single("image"), AddSubCategory);
+router.get("/get_sub_category", GetSubCategory);
 
 // ---------------- Address Route -----------------------
 
