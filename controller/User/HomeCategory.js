@@ -47,8 +47,8 @@ export const createCategory = async (req, res) => {
 // GET ALL CATEGORIES
 export const getAllCategories = async (req, res) => {
   try {
-    // Fetch all categories (latest first)
-    const categories = await Category.find().sort({ createdAt: -1 });
+    // Fetch all categories (oldest first → ascending order)
+    const categories = await Category.find().sort({ id: 1 });
 
     // If no data found
     if (!categories || categories.length === 0) {

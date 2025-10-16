@@ -30,7 +30,7 @@ router.get("/get_all_categories", getAllCategories);
 
 // ----------------Sub Category Route -----------------------
 
-const SubCategoryImage = createMulter("UserImage", "subCategoryImage");
+const SubCategoryImage = createMulter("UserImage", "subCategory");
 
 router.post("/add_sub_category", SubCategoryImage.single("image"), AddSubCategory);
 router.get("/get_sub_category", GetSubCategory);

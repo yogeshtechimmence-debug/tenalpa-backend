@@ -25,7 +25,7 @@ export const registerUser = async (req, res) => {
       register_id,
       ios_register_id,
       status,
-    } = req.body; // ✅ changed from req.query → req.body
+    } = req.body; 
 
     // Handle file uploads based on type
     let image = "";
