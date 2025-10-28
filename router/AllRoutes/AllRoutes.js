@@ -4,7 +4,7 @@ import venderRoutes from "../VenderRoutes/venderRoutes.js"
 
 const router = express.Router();
 
-router.use("/user", userRoutes);
-router.use("/vendor", venderRoutes);
+router.use(userRoutes);
+router.use(venderRoutes);
 
 export default router;

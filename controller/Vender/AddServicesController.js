@@ -9,7 +9,7 @@ export const AddServices = async (req, res) => {
       sub_category,
       servies_price,
       description,
-    } = req.body;
+    } = req.query;
 
     const image = req.files
       ? req.files.map(
@@ -62,6 +62,27 @@ export const AddServices = async (req, res) => {
     res.status(500).json({
       status: 0,
       message: "Server error while adding service.",
+      error: error.message,
+    });
+  }
+};
+
+
+// Get All Services
+export const getAllServices = async (req, res) => {
+  try {
+    const allServices = await VenderServices.find(); // 👈 sab data le aayega
+
+    res.status(200).json({
+      status: "1",
+      message: "All vendor services fetched successfully",
+      result: allServices,
+    });
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    res.status(500).json({
+      status: "0",
+      message: "Server error while fetching vendor services",
       error: error.message,
     });
   }
