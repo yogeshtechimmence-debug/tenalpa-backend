@@ -21,7 +21,7 @@ const router = express.Router();
 
 // ----------------  Auth Route -----------------------
 
-router.post(
+router.get(
   "/register",
   (req, res, next) => {
     const upload = createMulter();
