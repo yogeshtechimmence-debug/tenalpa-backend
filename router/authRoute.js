@@ -22,7 +22,7 @@ const router = express.Router();
 // ----------------  Auth Route -----------------------
 
 router.post(
-  "/signup",
+  "/register",
   (req, res, next) => {
     const upload = createMulter();
     upload(req, res, (err) => {
@@ -34,6 +34,7 @@ router.post(
   },
   registerUser
 );
+
 router.get("/login", loginUser);
 router.get("/get_profile", getUserProfile);
 
