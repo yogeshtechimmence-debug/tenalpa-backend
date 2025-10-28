@@ -8,18 +8,18 @@ import fs from "fs";
  * @param {String} subFolder - Optional subfolder inside main folder (e.g. 'profileImage')
  */
 const createMulter = (mainFolder, subFolder = "") => {
-  // ✅ Build full upload path
+  // Build full upload path
   const uploadPath = subFolder
     ? path.join(process.cwd(), "uploads", mainFolder, subFolder)
     : path.join(process.cwd(), "uploads", mainFolder);
 
-  // ✅ Ensure folders exist
+  // Ensure folders exist
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
     console.log(`Created folder: uploads/${mainFolder}/${subFolder}`);
   }
 
-  // ✅ Storage config
+  //  Storage config
   const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadPath),
     filename: (req, file, cb) => {
@@ -33,7 +33,7 @@ const createMulter = (mainFolder, subFolder = "") => {
     },
   });
 
-  // ✅ File filter (only image types)
+  //  File filter (only image types)
   const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
     const ext = path.extname(file.originalname).toLowerCase();

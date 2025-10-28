@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const bannerSchema = new mongoose.Schema(
   {
+    id: { type: Number, unique: true },
     userId: {
       type: String,
       ref: "User",

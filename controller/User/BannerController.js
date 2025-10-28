@@ -11,7 +11,11 @@ export const createBanner = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const banner = new Banner({ name, image, description, userId });
+    // Find last job ID safely
+    const lastJob = await Banner.findOne().sort({ id: -1 });
+    const newId = lastJob ? lastJob.id + 1 : 1;
+
+    const banner = new Banner({ id: newId, name, image, description, userId });
     await banner.save();
 
     res.status(201).json({
@@ -28,7 +32,7 @@ export const createBanner = async (req, res) => {
 
 export const getBanners = async (req, res) => {
   try {
-    const banners = await Banner.find().sort({ createdAt: -1 });
+    const banners = await Banner.find().sort({ id: 1 });
     res.status(200).json({
       message: "Banner fetch successfully",
       result: banners,

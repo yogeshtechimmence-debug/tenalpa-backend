@@ -11,6 +11,7 @@ import {
 } from "../../controller/UserAddressController.js";
 import { createCategory, getAllCategories } from "../../controller/User/HomeCategory.js";
 import { AddSubCategory, GetSubCategory } from "../../controller/User/SubCategory.js";
+import { DeleteJob, getQuotes, PostJob } from "../../controller/User/JobPostController.js";
 
 const router = express.Router();
 
@@ -34,6 +35,15 @@ const SubCategoryImage = createMulter("UserImage", "subCategory");
 
 router.post("/add_sub_category", SubCategoryImage.single("image"), AddSubCategory);
 router.get("/get_sub_category", GetSubCategory);
+
+// ---------------- PostJobImage Route -----------------------
+
+const PostJobImage = createMulter("UserImage", "PostJobImage");
+
+router.post("/add_postjob", PostJobImage.array("image", 5), PostJob);
+router.delete("/delete_postjob", DeleteJob);
+router.get("/get_quote", getQuotes);
+
 
 // ---------------- Address Route -----------------------
 

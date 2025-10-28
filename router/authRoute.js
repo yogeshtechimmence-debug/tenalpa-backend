@@ -1,6 +1,6 @@
 import express from "express";
-import dynamicUpload from "../middleware/uploadMiddleware.js";
-import { loginUser, registerUser } from "../controller/UserAuth.js";
+// import dynamicUpload from "../middleware/uploadMiddleware.js";
+import { getUserProfile, loginUser, registerUser, updateUserProfile } from "../controller/UserAuth.js";
 import {
   changePassword,
   forgetPassword,
@@ -10,13 +10,39 @@ import {
   getUserAddressById,
   updateUserAddress,
 } from "../controller/UserAddressController.js";
+import createMulter from "../middleware/UserAuthMulter.js";
+
 
 const router = express.Router();
 
 // ----------------  Auth Route -----------------------
 
-router.post("/register", dynamicUpload, registerUser);
+router.post("/signup", (req, res, next) => {
+  const upload = createMulter();
+  upload(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ status: 0, message: err.message });
+    }
+    next();
+  });
+}, registerUser);
 router.post("/login", loginUser);
+router.get("/get_profile", getUserProfile);
+
+router.put(
+  "/update_profile",
+  (req, res, next) => {
+    const upload = createMulter();
+    upload(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ status: 11, message: err.message });
+      }
+      next();
+    });
+  },
+  updateUserProfile
+);
+
 
 // ---------------- forget Password Route -----------------------
 

@@ -25,26 +25,22 @@ export const registerUser = async (req, res) => {
       register_id,
       ios_register_id,
       status,
-    } = req.body; 
+    } = req.body;
 
-    // Handle file uploads based on type
     let image = "";
     let previous_job = [];
 
     if (type === "USER") {
-      image = req.file
-        ? `https://tenalpa-backend.onrender.com/uploads/UserImage/profileImage/${req.file.filename}`
+      image = req.files?.image
+        ? `https://tenalpa-backend.onrender.com/uploads/UserImage/profileImage/${req.files.image[0].filename}`
         : "";
     } else if (type === "VENDOR") {
-      if (req.files && req.files.length > 0) {
-        // First file is profile image, rest are previous job images
-        image = `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${req.files[0].filename}`;
-        previous_job = req.files
-          .slice(1)
-          .map(
-            (file) =>
-              `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${file.filename}`
-          );
+      if (req.files?.previous_job?.length) {
+        image = `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${req.files.previous_job[0].filename}`;
+        previous_job = req.files.previous_job.map(
+          (file) =>
+            `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${file.filename}`
+        );
       }
     }
 
@@ -216,6 +212,138 @@ export const loginUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
+    res.status(500).json({
+      status: "0",
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// GET USER PROFILE BY ID
+export const getUserProfile = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({
+        status: "0",
+        message: "user_id is required",
+      });
+    }
+
+    const user = await User.findOne({ id: Number(user_id) });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "0",
+        message: "User not found",
+      });
+    }
+
+    // Convert to object and remove sensitive data
+    const userData = user.toObject();
+    delete userData.password;
+
+    res.status(200).json({
+      status: "1",
+      message: "User profile fetched successfully",
+      result: userData,
+    });
+  } catch (error) {
+    console.error("Get Profile Error:", error);
+    res.status(500).json({
+      status: "0",
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// UPDATE PROFILE
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+    const {
+      first_name,
+      last_name,
+      abn_number,
+      business_name,
+      service_offered,
+      availability,
+      emergency,
+      charges,
+      enter_hour_rate,
+      mobile,
+      email,
+      address,
+      lat,
+      lon,
+      type, // USER or VENDOR
+      status,
+    } = req.body;
+
+    const user = await User.findOne({ id: Number(user_id) });
+    if (!user) {
+      return res.status(404).json({
+        status: "0",
+        message: "User not found",
+      });
+    }
+
+    let image = user.image;
+    let previous_job = user.previous_job || [];
+
+    if (type === "USER") {
+      if (req.files?.image?.[0]) {
+        image = `https://tenalpa-backend.onrender.com/uploads/UserImage/profileImage/${req.files.image[0].filename}`;
+      }
+    }
+
+    if (type === "VENDOR") {
+      if (req.files?.image?.[0]) {
+        image = `https://tenalpa-backend.onrender.com/uploads/VenderImage/profileImage/${req.files.image[0].filename}`;
+      }
+
+      if (req.files?.previous_job?.length) {
+        previous_job = req.files.previous_job.map(
+          (file) =>
+            `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${file.filename}`
+        );
+      }
+    }
+
+    // ✅ Update user details
+    user.first_name = first_name || user.first_name;
+    user.last_name = last_name || user.last_name;
+    user.abn_number = abn_number || user.abn_number;
+    user.business_name = business_name || user.business_name;
+    user.service_offered = service_offered || user.service_offered;
+    user.availability = availability || user.availability;
+    user.emergency = emergency || user.emergency;
+    user.charges = charges || user.charges;
+    user.enter_hour_rate = enter_hour_rate || user.enter_hour_rate;
+    user.mobile = mobile || user.mobile;
+    user.email = email || user.email;
+    user.address = address || user.address;
+    user.lat = lat || user.lat;
+    user.lon = lon || user.lon;
+    user.status = status || user.status;
+    user.image = image;
+    user.previous_job = previous_job;
+
+    await user.save();
+
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
+
+    res.status(200).json({
+      status: "1",
+      message: "Profile updated successfully",
+      result: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
     res.status(500).json({
       status: "0",
       message: "Server error",
