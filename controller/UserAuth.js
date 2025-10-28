@@ -165,7 +165,7 @@ export const registerUser = async (req, res) => {
 // LOGIN - Handles both USER and VENDOR
 export const loginUser = async (req, res) => {
   try {
-    const { email, type, password } = req.body;
+    const { email, type, password } = req.query;
 
     if (!email || !password || !type) {
       return res.status(400).json({
