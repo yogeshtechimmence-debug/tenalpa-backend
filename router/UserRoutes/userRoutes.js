@@ -12,6 +12,9 @@ import {
 import { createCategory, getAllCategories } from "../../controller/User/HomeCategory.js";
 import { AddSubCategory, GetSubCategory } from "../../controller/User/SubCategory.js";
 import { DeleteJob, getQuotes, PostJob } from "../../controller/User/JobPostController.js";
+import { getUserRequests, SendRequest } from "../../controller/Vender/RequestController.js";
+import { getAllServices } from "../../controller/Vender/AddServicesController.js";
+import { quoteBooking } from "../../controller/User/UserBooking.js";
 
 const router = express.Router();
 
@@ -36,13 +39,30 @@ const SubCategoryImage = createMulter("UserImage", "subCategory");
 router.post("/add_sub_category", SubCategoryImage.single("image"), AddSubCategory);
 router.get("/get_sub_category", GetSubCategory);
 
-// ---------------- PostJobImage Route -----------------------
+// ---------------- Request Route -----------------------
+
+
+router.post("/send_request", SendRequest);
+router.get("/get_user_request", getUserRequests);
+
+
+// ---------------- services Route -----------------------
+
+router.get("/get_all_services", getAllServices);
+
+// ---------------- UserBooking Route -----------------------
+
+router.post("/quote_booking", quoteBooking);
+
+
+// ---------------- PostJob Route -----------------------
+
 
 const PostJobImage = createMulter("UserImage", "PostJobImage");
 
 router.post("/add_postjob", PostJobImage.array("image", 5), PostJob);
-router.delete("/delete_postjob", DeleteJob);
 router.get("/get_quote", getQuotes);
+router.delete("/delete_postjob", DeleteJob);
 
 
 // ---------------- Address Route -----------------------

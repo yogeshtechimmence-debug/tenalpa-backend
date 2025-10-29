@@ -15,7 +15,7 @@ import {
   getUserAddressById,
   updateUserAddress,
 } from "../controller/UserAddressController.js";
-import createMulter from "../middleware/UserAuthMulter.js";
+import createAuthMulter from "../middleware/UserAuthMulter.js";
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ const router = express.Router();
 router.get(
   "/register",
   (req, res, next) => {
-    const upload = createMulter();
+    const upload = createAuthMulter();
     upload(req, res, (err) => {
       if (err) {
         return res.status(400).json({ status: 0, message: err.message });
@@ -41,7 +41,7 @@ router.get("/get_profile", getUserProfile);
 router.put(
   "/update_profile",
   (req, res, next) => {
-    const upload = createMulter();
+    const upload = createAuthMulter();
     upload(req, res, (err) => {
       if (err) {
         return res.status(400).json({ status: 11, message: err.message });

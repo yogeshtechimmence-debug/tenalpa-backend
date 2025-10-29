@@ -4,7 +4,7 @@ import User from "../../Model/UserAuthModel.js";
 
 export const SendQuote = async (req, res) => {
   try {
-    const { job_id, vendor_id, quote_amount, message, time } = req.body;
+    const { job_id, vendor_id, quote_amount, message, time, date } = req.query;
 
     const image = req.files
       ? req.files.map(
@@ -14,7 +14,7 @@ export const SendQuote = async (req, res) => {
       : [];
 
     // Validate required fields
-    if ((!job_id, !vendor_id || !quote_amount || !message || !time)) {
+    if ((!job_id, !vendor_id || !quote_amount || !message || !time  || !date)) {
       return res.status(400).json({
         status: 0,
         message:
@@ -53,10 +53,12 @@ export const SendQuote = async (req, res) => {
       quote_amount,
       message,
       time,
+      date,
       image,
       vendor_name: `${vendor.first_name} ${vendor.last_name}`,
       vendor_phone: vendor.phone || vendor.mobile,
       vendor_email: vendor.email,
+      status: "ACCEPT", // default to ACCEPT
     });
 
     await newQuote.save();

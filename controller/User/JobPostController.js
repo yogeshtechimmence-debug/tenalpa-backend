@@ -14,7 +14,7 @@ export const PostJob = async (req, res) => {
       location,
       date,
       time,
-    } = req.body;
+    } = req.query;
 
     const image = req.files
       ? req.files.map(
@@ -41,7 +41,7 @@ export const PostJob = async (req, res) => {
       });
     }
 
-    // ✅ Use findOne for numeric IDs
+    //  Use findOne for numeric IDs
     const user = await User.findOne({ id: user_id });
 
     if (!user) {
@@ -87,7 +87,7 @@ export const PostJob = async (req, res) => {
   }
 };
 
-// DELETE JOB BY ID
+// DELETE
 export const DeleteJob = async (req, res) => {
   try {
     const { id } = req.query;
@@ -124,29 +124,38 @@ export const DeleteJob = async (req, res) => {
   }
 };
 
-// get quote
+// GET QUOTES
 export const getQuotes = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { job_id } = req.query;
 
-    const quotes = await Quote.find({ job_id: id });
+    if (!job_id) {
+      return res.status(400).json({
+        status: 0,
+        message: "job_id is required",
+      });
+    }
 
-    if (!quotes || quotes.length === 0) {
+    const quotes = await Quote.find({ job_id: Number(job_id) }).sort({ id: 1 });
+
+    if (quotes.length === 0) {
       return res.status(404).json({
         status: 0,
-        message: "user not found",
+        message: "No quotes found for this job_id",
       });
     }
 
     res.status(200).json({
       status: 1,
-      message: "Quotes get successfully",
+      message: "Quotes retrieved successfully",
+      total_quotes: quotes.length,
       data: quotes,
     });
   } catch (error) {
+    console.error("Error fetching quotes:", error);
     res.status(500).json({
       status: 0,
-      message: "Server error",
+      message: "Server error while retrieving quotes",
       error: error.message,
     });
   }

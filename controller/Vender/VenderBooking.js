@@ -1,5 +1,5 @@
 import Request from "../../Model/VenderModel/RequestModel.js";
-import MyBooking from "../../Model/VenderModel/VenderBookingModel.js";
+import VendorBooking from "../../Model/VenderModel/VenderBookingModel.js";
 
 // Accept Request Controller
 export const AcceptBooking = async (req, res) => {
@@ -23,15 +23,18 @@ export const AcceptBooking = async (req, res) => {
       });
     }
 
-    // Generate new booking id
-    const lastBooking = await MyBooking.findOne().sort({ id: -1 });
+    //  Update request status to ACCEPTED
+    requestData.status = "ACCEPTED";
+    await requestData.save();
+
+    //  Also create a booking entry
+    const lastBooking = await VendorBooking.findOne().sort({ id: -1 });
     const newId = lastBooking ? lastBooking.id + 1 : 1;
 
-    // Create booking entry
-    const newBooking = new MyBooking({
+    const newBooking = new VendorBooking({
       id: newId,
-      user_id: requestData.user_id, // Vender id
-      vendor_id: requestData.user_id,
+      user_id: requestData.user_id,
+      vendor_id: requestData.vendor_id,
       serviece_id: requestData.serviece_id,
       serviece_type: requestData.serviece_type,
       location: requestData.location,
@@ -43,19 +46,13 @@ export const AcceptBooking = async (req, res) => {
       status: "Accepted",
     });
 
-    // Save booking
     await newBooking.save();
 
-    // Optional: delete from Request table
-    const deleteReq = await Request.findOneAndDelete({
-      id: Number(request_id),
-    });
-    console.log("deleteyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", deleteReq);
-
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: "Request accepted and moved to bookings",
-      data: newBooking,
+      message: "Request accepted successfully and booking created",
+      updated_request: requestData,
+      result: newBooking,
     });
   } catch (error) {
     console.error("Error accepting request:", error);
@@ -79,7 +76,7 @@ export const getBookings = async (req, res) => {
       });
     }
     // Find all bookings by user_id (ascending order)
-    const bookings = await MyBooking.find({ user_id: Number(user_id) }).sort({
+    const bookings = await VendorBooking.find({ user_id: Number(user_id) }).sort({
       id: 1,
     });
 
@@ -106,7 +103,7 @@ export const getBookings = async (req, res) => {
   }
 };
 
-// Cancel Booking by id 
+// Cancel Booking by id
 export const CancelBooking = async (req, res) => {
   try {
     const { id, reason } = req.body; // reason in body
@@ -126,7 +123,7 @@ export const CancelBooking = async (req, res) => {
     }
 
     // Find booking
-    const booking = await MyBooking.findOne({ id: Number(id) });
+    const booking = await VendorBooking.findOne({ id: Number(id) });
 
     if (!booking) {
       return res.status(404).json({
@@ -136,8 +133,7 @@ export const CancelBooking = async (req, res) => {
     }
 
     // Get current date & time
-    const now = new Date();
-    const date = now.toLocaleDateString("en-GB"); // DD/MM/YYYY
+    const now = new Date(); // DD/MM/YYYY
     const time = now.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
@@ -165,5 +161,4 @@ export const CancelBooking = async (req, res) => {
     });
   }
 };
-
-
+  

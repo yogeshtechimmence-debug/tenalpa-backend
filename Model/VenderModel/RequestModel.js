@@ -4,6 +4,7 @@ const RequestSchema = new mongoose.Schema(
   {
     id: { type: Number, required: true, unique: true },
     user_id: { type: Number },
+    vendor_id: { type: Number },
     full_name: { type: String },
     user_mobile: { type: String },
     serviece_id: { type: Number },
@@ -12,6 +13,11 @@ const RequestSchema = new mongoose.Schema(
     Date: { type: String },
     time: { type: String },
     notes: { type: String },
+    status: {
+      type: String,
+      enum: ["PENDING", "ACCEPTED", "REJECTED"],
+      default: "PENDING",
+    },
   },
   { timestamps: true }
 );
