@@ -1,6 +1,6 @@
 import Quote from "../../Model/VenderModel/SendQuotModel.js";
 import Job from "../../Model/UserModel/JobPostModel.js";
-import User from "../../Model/UserAuthModel.js";
+import User from "../../Model/CommonModel/UserAuthModel.js";
 
 export const SendQuote = async (req, res) => {
   try {
@@ -14,7 +14,7 @@ export const SendQuote = async (req, res) => {
       : [];
 
     // Validate required fields
-    if ((!job_id, !vendor_id || !quote_amount || !message || !time  || !date)) {
+    if ((!job_id, !vendor_id || !quote_amount || !message || !time || !date)) {
       return res.status(400).json({
         status: 0,
         message:
@@ -50,6 +50,8 @@ export const SendQuote = async (req, res) => {
       job_id: job.id,
       user_id: job.user_id,
       vendor_id,
+      job_category: job.category,
+      job_title: job.job_title,
       quote_amount,
       message,
       time,
@@ -58,7 +60,9 @@ export const SendQuote = async (req, res) => {
       vendor_name: `${vendor.first_name} ${vendor.last_name}`,
       vendor_phone: vendor.phone || vendor.mobile,
       vendor_email: vendor.email,
-      status: "ACCEPT", // default to ACCEPT
+      vendor_image: vendor.image,
+      vendor_address: vendor.address,
+      status: "PENDING", // default to ACCEPT
     });
 
     await newQuote.save();
@@ -103,4 +107,3 @@ export const getAllJobs = async (req, res) => {
     });
   }
 };
-

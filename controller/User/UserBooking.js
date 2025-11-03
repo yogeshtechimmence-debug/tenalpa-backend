@@ -34,6 +34,8 @@ export const quoteBooking = async (req, res) => {
       job_id: quoteData.job_id,
       vendor_id: quoteData.vendor_id,
       quote_amount: quoteData.quote_amount,
+      job_category: quoteData.job_category,
+      job_title: quoteData.job_title,
       message: quoteData.message,
       time: quoteData.time,
       date: quoteData.date,
@@ -41,7 +43,9 @@ export const quoteBooking = async (req, res) => {
       vendor_name: quoteData.vendor_name,
       vendor_phone: quoteData.vendor_phone,
       vendor_email: quoteData.vendor_email,
-      status: "BOOKED", // default
+      vendor_image: quoteData.vendor_image,
+      vendor_address: quoteData.vendor_address,
+      status: quoteData.status
     });
 
     await newBooking.save();

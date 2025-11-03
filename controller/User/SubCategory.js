@@ -16,7 +16,7 @@ export const AddSubCategory = async (req, res) => {
       });
     }
 
-    // ✅ Check if Category exists
+    //  Check if Category exists
     const categoryExists = await Category.findOne({ id: category_id });
     if (!categoryExists) {
       return res.status(404).json({
@@ -53,7 +53,7 @@ export const AddSubCategory = async (req, res) => {
   }
 };
 
-// ✅ Get all items for a specific category_id
+//  Get all items for a specific category_id
 export const GetSubCategory = async (req, res) => {
   try {
     const { category_id } = req.query;

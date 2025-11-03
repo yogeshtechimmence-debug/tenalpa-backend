@@ -6,6 +6,7 @@ const MyBookingSchema = new mongoose.Schema(
     user_id: { type: Number },
     vendor_id: { type: Number },
     serviece_id: { type: Number },
+    user_image: { type: String },
     serviece_type: { type: String },
     location: { type: String },
     Date: { type: String },
@@ -14,9 +15,9 @@ const MyBookingSchema = new mongoose.Schema(
     full_name: { type: String },
     user_mobile: { type: String },
     status: { type: String, default: "Accepted" },
-    canceled_at: { type: String, default: "" },  
+    canceled_at: { type: String, default: "" },
     canceled_time: { type: String, default: "" },
-     cancel_reason: { type: String, default: "" },
+    cancel_reason: { type: String, default: "" },
   },
   { timestamps: true }
 );

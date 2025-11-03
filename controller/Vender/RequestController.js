@@ -1,10 +1,11 @@
 import Request from "../../Model/VenderModel/RequestModel.js";
-import User from "../../Model/UserAuthModel.js";
+import User from "../../Model/CommonModel/UserAuthModel.js";
 import Services from "../../Model/VenderModel/AddServicesModel.js";
 
 //  New Request Controller
 export const SendRequest = async (req, res) => {
   try {
+    await VendorBooking.deleteMany({}); // sab documents delete ho jayenge
     const { user_id, serviece_id, serviece_type, location, Date, time, notes } =
       req.query;
 
@@ -40,6 +41,7 @@ export const SendRequest = async (req, res) => {
       user_id, // user id
       vendor_id: servicesData.user_id, //vendor id 
       serviece_id: servicesData.id,
+      user_image: userData.image,
       serviece_type,
       location,
       Date,
@@ -154,6 +156,7 @@ export const getVendorRequests = async (req, res) => {
       notes: req.notes,
       full_name: req.full_name,
       user_mobile: req.user_mobile,
+      user_image: req.user_image
     }));
 
     res.status(200).json({

@@ -31,10 +31,10 @@ export const AddServices = async (req, res) => {
       });
     }
 
-    // ✅ Find last document safely
+    //  Find last document safely
     const lastService = await VenderServices.findOne().sort({ id: -1 }).lean();
 
-    // ✅ Safe numeric increment
+    //  Safe numeric increment
     const lastId =
       lastService && Number.isFinite(lastService.id) ? lastService.id : 0;
 
@@ -125,7 +125,7 @@ export const GetServicesByVender = async (req, res) => {
   }
 };
 
-// ✅ UPDATE SERVICES
+//  UPDATE SERVICES
 export const UpdateServices = async (req, res) => {
   try {
     const { id } = req.query; // numeric id
@@ -147,7 +147,7 @@ export const UpdateServices = async (req, res) => {
         )
       : [];
 
-    // ✅ Fetch service by numeric ID
+    //  Fetch service by numeric ID
     const existingService = await VenderServices.findOne({ id: Number(id) });
 
     if (!existingService) {
@@ -157,14 +157,14 @@ export const UpdateServices = async (req, res) => {
       });
     }
 
-    // ✅ Update fields if provided
+    //  Update fields if provided
     if (services_category)
       existingService.services_category = services_category;
     if (sub_category) existingService.sub_category = sub_category;
     if (servies_price) existingService.servies_price = servies_price;
     if (description) existingService.description = description;
 
-    // ✅ Merge new images with existing ones (optional)
+    //  Merge new images with existing ones (optional)
     if (newImages.length > 0) {
       existingService.image = [...existingService.image, ...newImages];
     }
@@ -186,7 +186,7 @@ export const UpdateServices = async (req, res) => {
   }
 };
 
-// ✅ DELETE SERVICES
+//  DELETE SERVICES
 export const DeleteServices = async (req, res) => {
   try {
     const { id } = req.query; // this is your custom numeric ID

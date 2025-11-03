@@ -1,5 +1,5 @@
 import Job from "../../Model/UserModel/JobPostModel.js";
-import User from "../../Model/UserAuthModel.js";
+import User from "../../Model/CommonModel/UserAuthModel.js";
 import Quote from "../../Model/VenderModel/SendQuotModel.js";
 
 //Post job

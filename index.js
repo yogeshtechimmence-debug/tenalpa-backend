@@ -6,7 +6,9 @@ import chalk from "chalk";
 import figures from "figures";
 import path from "path";
 import router from "./router/AllRoutes/AllRoutes.js";
-import authRouter from "./router/authRoute.js";
+import http from "http";
+import websocketRoute, { setupWebSocketServer } from "./router/WebSocketRoutes.js";
+
 
 dotenv.config();
 const app = express();
@@ -22,12 +24,19 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+app.use("/tenalpa/api", router);
+app.use("/tenalpa/api", websocketRoute); 
+
+
 // DB connection
 MongoDb();
 
-app.use("/tenalpa/api", router);
-app.use("/tenalpa/api", authRouter);
+const server = http.createServer(app);
 
-app.listen(process.env.PORT, () => {
-   console.log(chalk.green(`Server Started ${figures.tick}`));
+setupWebSocketServer(server);
+
+const PORT = process.env.PORT
+server.listen(PORT, () => {
+  console.log(chalk.green(`Server running on port ${PORT} ${figures.tick}`));
 });

@@ -5,6 +5,7 @@ const RequestSchema = new mongoose.Schema(
     id: { type: Number, required: true, unique: true },
     user_id: { type: Number },
     vendor_id: { type: Number },
+    user_image: { type: String },
     full_name: { type: String },
     user_mobile: { type: String },
     serviece_id: { type: Number },

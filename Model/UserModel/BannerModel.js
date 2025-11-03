@@ -6,13 +6,16 @@ const bannerSchema = new mongoose.Schema(
     userId: {
       type: String,
       ref: "User",
-      required: false,
     },
     name: {
       type: String,
       required: true,
     },
     image: {
+      type: String,
+      required: true,
+    },
+    complate_image: {
       type: String,
       required: true,
     },

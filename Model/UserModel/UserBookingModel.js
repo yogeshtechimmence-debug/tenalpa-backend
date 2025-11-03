@@ -10,6 +10,8 @@ const UserBookingSchema = new mongoose.Schema(
     job_id: { type: Number },
     vendor_id: { type: Number },
     quote_amount: { type: String },
+    job_category: { type: String },
+    job_title: { type: String },
     message: { type: String },
     time: { type: String },
     date: { type: String },
@@ -17,12 +19,14 @@ const UserBookingSchema = new mongoose.Schema(
     vendor_name: { type: String },
     vendor_phone: { type: String },
     vendor_email: { type: String },
+    vendor_image: { type: String },
+    vendor_address: { type: String },
 
     // Additional booking status
     status: {
       type: String,
-      enum: ["BOOKED", "CANCELLED", "COMPLETED"],
-      default: "BOOKED",
+      enum: ["PENDING", "CANCELLED", "COMPLETED"],
+      default: "PENDING",
     },
   },
   { timestamps: true }

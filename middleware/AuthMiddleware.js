@@ -7,7 +7,7 @@ export const verifyToken = (req, res, next) => {
       return res.json({
         result: {},
         message: "No token provided",
-        status: "0"
+        status: "0",
       });
     }
 
@@ -17,7 +17,7 @@ export const verifyToken = (req, res, next) => {
       return res.json({
         result: {},
         message: "Invalid token format",
-        status: "0"
+        status: "0",
       });
     }
 
@@ -26,10 +26,10 @@ export const verifyToken = (req, res, next) => {
         return res.json({
           result: {},
           message: "Token is not valid",
-          status: "0"
+          status: "0",
         });
       }
-      req.userId = decoded.id; 
+      req.userId = decoded.id;
       next();
     });
   } catch (err) {
@@ -37,7 +37,7 @@ export const verifyToken = (req, res, next) => {
     return res.json({
       result: {},
       message: "server error",
-      status: "0"
+      status: "0",
     });
   }
 };
