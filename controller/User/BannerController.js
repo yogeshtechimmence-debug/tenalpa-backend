@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Banner from "../../Model/UserModel/BannerModel.js";
 import dotenv from "dotenv";
+import UserAuthModel from "../../Model/CommonModel/UserAuthModel.js";
 
 export const createBanner = async (req, res) => {
   try {
@@ -63,33 +64,32 @@ export const getBanners = async (req, res) => {
 
 // dotenv.config();
 
-// const addComplateImageField = async () => {
+// const AddRating = async () => {
 //   try {
 //     // MongoDB connection
-//     await mongoose.connect("mongodb+srv://yogeshtechimmence_db_user:sEYrq7ThZfcX10Mm@cluster0.zp2oqeb.mongodb.net/Tenalpa?retryWrites=true&w=majority&appName=Cluster0");
-//     console.log('Connected to MongoDB');
+//     await mongoose.connect(
+//       "mongodb+srv://yogeshtechimmence_db_user:sEYrq7ThZfcX10Mm@cluster0.zp2oqeb.mongodb.net/Tenalpa?retryWrites=true&w=majority&appName=Cluster0"
+//     );
+//     console.log("✅ Connected to MongoDB");
 
-//     // Existing banners ko update karein
-//     const result = await Banner.updateMany(
-//       {
-//         complate_image: { $exists: false } // Sirf unhi documents ko jahan complate_image nahi hai
-//       },
+//     // Sirf un documents ko update karo jisme rating field nahi hai
+//     const result = await UserAuthModel.updateMany(
+//       { rating: { $exists: false } },
 //       {
 //         $set: {
-//           complate_image: "$image" // Default value ke liye existing image use karein
-//         }
+//           rating: 0, // default value 0
+//         },
 //       }
 //     );
 
-//     console.log(`✅ Successfully updated ${result.modifiedCount} banners`);
-//     console.log('Migration completed successfully');
-
+//     console.log(`✅ Successfully updated ${result.modifiedCount} users`);
+//     console.log("🎉 Rating field added successfully to all users");
 //   } catch (error) {
-//     console.error('❌ Migration failed:', error);
+//     console.error("❌ Migration failed:", error);
 //   } finally {
 //     await mongoose.connection.close();
 //     process.exit(0);
 //   }
 // };
 
-// addComplateImageField();
+// AddRating();

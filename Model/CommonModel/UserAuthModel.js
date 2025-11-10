@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
     emergency: { type: String },
     charges: { type: String },
     enter_hour_rate: { type: String },
-     rating: { type: Number, default: 0 },
+    rating: { type: Number, default: 0 },
     
     // Common fields
     mobile: { type: String, required: true, unique: true, trim: true },

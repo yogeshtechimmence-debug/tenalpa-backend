@@ -1,6 +1,6 @@
 import Job from "../../Model/UserModel/JobPostModel.js";
 import User from "../../Model/CommonModel/UserAuthModel.js";
-import Quote from "../../Model/VenderModel/SendQuotModel.js";
+import Quote from "../../Model/VendorModel/SendQuotModel.js";
 
 //Post job
 export const PostJob = async (req, res) => {
@@ -74,7 +74,7 @@ export const PostJob = async (req, res) => {
     res.status(201).json({
       status: 1,
       message:
-        "Your job has been posted successfully! Vendors will send you quotes soon.",
+        "Your job has been posted successfully! vendors will send you quotes soon.",
       result: newJob,
     });
   } catch (error) {
@@ -82,6 +82,99 @@ export const PostJob = async (req, res) => {
     res.status(500).json({
       status: 0,
       message: "Server error while posting job",
+      error: error.message,
+    });
+  }
+};
+
+// get all vendor quote
+export const getSingleJob = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({
+        status: 0,
+        message: "user_id is required",
+      });
+    }
+
+    // Step 1: Get all quotes for user_id
+    const jobs = await Job.find({ user_id: Number(user_id) }).sort({ id: 1 });
+
+    
+    res.status(200).json({
+      status: 1,
+      message: "Quotes retrieved successfully",
+      result: jobs
+    });
+  } catch (error) {
+    console.error("Error fetching quotes:", error);
+    res.status(500).json({
+      status: 0,
+      message: "Server error while retrieving quotes",
+      error: error.message,
+    });
+  }
+};
+
+// get all vendor quote
+export const getQuotes = async (req, res) => {
+  try {
+    const { job_id } = req.query;
+
+    if (!job_id) {
+      return res.status(400).json({
+        status: 0,
+        message: "job_id is required",
+      });
+    }
+
+    // Step 1: Get all quotes for job_id
+    const quotes = await Quote.find({ job_id: Number(job_id) }).sort({ id: 1 });
+
+    if (quotes.length === 0) {
+      return res.status(404).json({
+        status: 0,
+        message: "No quotes found for this job_id",
+      });
+    }
+
+    // Step 2: Collect all vendor_ids
+    const vendorIds = quotes.map((q) => q.vendor_id);
+    console.log(vendorIds);
+
+    // Step 3: Find all users (vendors) whose id matches vendor_id
+    const users = await User.find({ id: { $in: vendorIds } }).select(
+      "id rating first_name last_name"
+    );
+
+    // Step 4: Merge user rating & name into quote data
+    const result = quotes.map((quote) => {
+      const user = users.find(
+        (u) => u.id.toString() === quote.vendor_id.toString()
+      );
+      return {
+        ...quote.toObject(),
+        vendor_rating: user ? user.rating : null,
+        vendor_name: user ? `${user.first_name} ${user.last_name}` : null,
+      };
+    });
+
+    console.log(result);
+
+    // Step 5: Send final response
+    res.status(200).json({
+      status: 1,
+      message: "Quotes retrieved successfully",
+      total_quotes: result.length,
+      result,
+    });
+  } catch (error) {
+    console.error("Error fetching quotes:", error);
+    res.status(500).json({
+      status: 0,
+      message: "Server error while retrieving quotes",
       error: error.message,
     });
   }
@@ -119,43 +212,6 @@ export const DeleteJob = async (req, res) => {
     res.status(500).json({
       status: 0,
       message: "Server error while deleting job",
-      error: error.message,
-    });
-  }
-};
-
-// GET QUOTES
-export const getQuotes = async (req, res) => {
-  try {
-    const { job_id } = req.query;
-
-    if (!job_id) {
-      return res.status(400).json({
-        status: 0,
-        message: "job_id is required",
-      });
-    }
-
-    const quotes = await Quote.find({ job_id: Number(job_id) }).sort({ id: 1 });
-
-    if (quotes.length === 0) {
-      return res.status(404).json({
-        status: 0,
-        message: "No quotes found for this job_id",
-      });
-    }
-
-    res.status(200).json({
-      status: 1,
-      message: "Quotes retrieved successfully",
-      total_quotes: quotes.length,
-      data: quotes,
-    });
-  } catch (error) {
-    console.error("Error fetching quotes:", error);
-    res.status(500).json({
-      status: 0,
-      message: "Server error while retrieving quotes",
       error: error.message,
     });
   }

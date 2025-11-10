@@ -1,34 +1,15 @@
 import express from "express";
 import createMulter from "../../middleware/upload.js";
-import {
-  createBanner,
-  getBanners,
-} from "../../controller/User/BannerController.js";
-import {
-  addUserAddress,
-  getUserAddressById,
-  updateUserAddress,
-} from "../../controller/Common/UserAddressController.js";
-import {
-  createCategory,
-  getAllCategories,
-} from "../../controller/User/HomeCategory.js";
-import {
-  AddSubCategory,
-  GetSubCategory,
-} from "../../controller/User/SubCategory.js";
-import {
-  DeleteJob,
-  getQuotes,
-  PostJob,
-} from "../../controller/User/JobPostController.js";
-import {
-  getUserRequests,
-  SendRequest,
-} from "../../controller/Vender/RequestController.js";
-import { getAllServices } from "../../controller/Vender/AddServicesController.js";
+import { createBanner,getBanners,} from "../../controller/User/BannerController.js";
+import { createCategory,getAllCategories,} from "../../controller/User/HomeCategory.js";
+import { AddSubCategory,GetSubCategory,} from "../../controller/User/SubCategory.js";
+import { DeleteJob,getQuotes,getSingleJob,PostJob,} from "../../controller/User/JobPostController.js";
+import { getUserRequests,SendRequest,} from "../../controller/Vendor/RequestController.js";
+import { getAllServices } from "../../controller/Vendor/AddServicesController.js";
 import { quoteBooking } from "../../controller/User/UserBooking.js";
-import { GetUserNotification } from "../../controller/User/UserNotificationController.js";
+import { addRating, getRatings, getRatingsByService } from "../../controller/User/RatingController.js";
+import { DeleteReschedule, GetReschedule, RescheduleService } from "../../controller/User/Reschedule.js";
+import { FilterService } from "../../controller/User/FilterController.js";
 
 const router = express.Router();
 
@@ -74,26 +55,44 @@ router.get("/get_user_request", getUserRequests);
 
 router.get("/get_all_services", getAllServices);
 
+
+// ---------------- services Route -----------------------
+
+
+router.get("/filter-service", FilterService);
+
+
+// ---------------- reting Route -----------------------
+
+const ratingImage = createMulter("VendorImage", "ratingImage");
+
+router.post("/add_rating", ratingImage.array("image", 5), addRating);
+
+router.get("/get_rating", getRatings);
+
+router.get("/get_service_rating", getRatingsByService);
+
 // ---------------- UserBooking Route -----------------------
 
 router.post("/quote_booking", quoteBooking);
+
+
+// ---------------- Address Route -----------------------
+
+router.post("/add_reschedule", RescheduleService)
+router.get("/get_reschedule", GetReschedule)
+router.delete("/delete_reschedule", DeleteReschedule);
+
 
 // ---------------- PostJob Route -----------------------
 
 const PostJobImage = createMulter("UserImage", "PostJobImage");
 
 router.post("/add_postjob", PostJobImage.array("image", 5), PostJob);
+router.get("/get_single_job", getSingleJob);
 router.get("/get_quote", getQuotes);
 router.delete("/delete_postjob", DeleteJob);
 
-// ---------------- Address Route -----------------------
 
-router.get("/get_user_notification", GetUserNotification);
-
-// ---------------- Address Route -----------------------
-
-router.post("/add_user_address", addUserAddress);
-router.get("/get_user_address", getUserAddressById);
-router.get("/update_user_address", updateUserAddress);
 
 export default router;

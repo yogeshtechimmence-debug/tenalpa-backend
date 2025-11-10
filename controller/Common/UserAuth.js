@@ -29,7 +29,7 @@ export const registerUser = async (req, res) => {
       ios_register_id,
       status,
       rating,
-      fcm_token 
+      fcm_token,
     } = data;
 
     let image = "";
@@ -41,10 +41,10 @@ export const registerUser = async (req, res) => {
         : "";
     } else if (type === "VENDOR") {
       if (req.files?.previous_job?.length) {
-        image = `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${req.files.previous_job[0].filename}`;
+        image = `https://tenalpa-backend.onrender.com/uploads/VendorImage/previousImage/${req.files.previous_job[0].filename}`;
         previous_job = req.files.previous_job.map(
           (file) =>
-            `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${file.filename}`
+            `https://tenalpa-backend.onrender.com/uploads/VendorImage/previousImage/${file.filename}`
         );
       }
     }
@@ -80,7 +80,6 @@ export const registerUser = async (req, res) => {
         !emergency ||
         !charges ||
         !enter_hour_rate
-       
       ) {
         return res.status(400).json({
           status: "0",
@@ -130,7 +129,7 @@ export const registerUser = async (req, res) => {
         ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
         : "Active",
       date_time: new Date().toISOString(),
-      fcm_token :fcm_token 
+      fcm_token: fcm_token,
     };
 
     //  Add type-specific fields
@@ -146,7 +145,7 @@ export const registerUser = async (req, res) => {
       userData.emergency = emergency;
       userData.charges = charges;
       userData.enter_hour_rate = enter_hour_rate;
-      userData.rating = rating || 0; 
+      userData.rating = rating || 0;
     }
 
     const newUser = new User(userData);
@@ -220,6 +219,27 @@ export const loginUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
+    res.status(500).json({
+      status: "0",
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// Get All Users
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().sort({ id: 1 }); // id wise sorting
+
+    res.status(200).json({
+      status: "1",
+      message: "All users fetched successfully",
+      total: users.length,
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
     res.status(500).json({
       status: "0",
       message: "Server error",
@@ -310,13 +330,13 @@ export const updateUserProfile = async (req, res) => {
 
     if (type === "VENDOR") {
       if (req.files?.image?.[0]) {
-        image = `https://tenalpa-backend.onrender.com/uploads/VenderImage/profileImage/${req.files.image[0].filename}`;
+        image = `https://tenalpa-backend.onrender.com/uploads/VendorImage/profileImage/${req.files.image[0].filename}`;
       }
 
       if (req.files?.previous_job?.length) {
         previous_job = req.files.previous_job.map(
           (file) =>
-            `https://tenalpa-backend.onrender.com/uploads/VenderImage/previousImage/${file.filename}`
+            `https://tenalpa-backend.onrender.com/uploads/VendorImage/previousImage/${file.filename}`
         );
       }
     }
@@ -364,30 +384,26 @@ export const updateUserProfile = async (req, res) => {
 export const updateFCMToken = async (req, res) => {
   try {
     const { user_id, fcm_token } = req.body;
-    
+
     // Validate token format
     if (!fcm_token || fcm_token.length < 50) {
       return res.status(400).json({
         success: false,
-        message: "Invalid FCM token format"
+        message: "Invalid FCM token format",
       });
     }
-    
-    await User.updateOne(
-      { id: user_id },
-      { $set: { fcm_token: fcm_token } }
-    );
-    
+
+    await User.updateOne({ id: user_id }, { $set: { fcm_token: fcm_token } });
+
     res.status(200).json({
       success: true,
-      message: "FCM token updated successfully"
+      message: "FCM token updated successfully",
     });
-    
   } catch (error) {
     console.error("Error updating FCM token:", error);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error",
     });
   }
 };

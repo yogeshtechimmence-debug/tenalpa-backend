@@ -1,6 +1,6 @@
 import User from "../../Model/CommonModel/UserAuthModel.js";
 import Message from "../../Model/ChatModel/Message.js";
-import { sendNotification } from "../SendNotification.js";
+import { sendNotification } from "../Common/SendNotification.js";
 import Notification from "../../Model/ChatModel/NotificationModel.js";
 
 

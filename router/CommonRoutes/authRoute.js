@@ -1,21 +1,9 @@
 import express from "express";
-// import dynamicUpload from "../middleware/uploadMiddleware.js";
-import {
-  getUserProfile,
-  loginUser,
-  registerUser,
-  updateUserProfile,
-} from "../../controller/Common/UserAuth.js";
-import {
-  changePassword,
-  forgetPassword,
-} from "../../controller/Common/UserForgetPassword.js";
-import {
-  addUserAddress,
-  getUserAddressById,
-  updateUserAddress,
-} from "../../controller/Common/UserAddressController.js";
+import {getAllUsers, getUserProfile,loginUser,registerUser,updateUserProfile,} from "../../controller/Common/UserAuth.js";
+import {changePassword,forgetPassword,} from "../../controller/Common/UserForgetPassword.js";
+import {addUserAddress,getUserAddressById,updateUserAddress,} from "../../controller/Common/UserAddressController.js";
 import createAuthMulter from "../../middleware/UserAuthMulter.js";
+import { GetUserNotification } from "../../controller/Common/UserNotificationController.js";
 
 const router = express.Router();
 
@@ -36,6 +24,7 @@ router.post(
 );
 
 router.get("/login", loginUser);
+router.get("/get_all-user", getAllUsers);
 router.get("/get_profile", getUserProfile);
 
 router.put(
@@ -56,6 +45,12 @@ router.put(
 
 router.post("/forget_password", forgetPassword);
 router.post("/change_password", changePassword);
+
+// ---------------- notification Route -----------------------
+
+
+router.get("/get_user_notification", GetUserNotification);
+
 
 // ---------------- Address Route -----------------------
 

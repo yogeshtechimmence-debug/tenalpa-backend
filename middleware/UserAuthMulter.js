@@ -2,6 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
+
 const  createAuthMulter = () => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -13,12 +14,12 @@ const  createAuthMulter = () => {
       } else if (type === "VENDOR" && file.fieldname === "image") {
         uploadPath = path.join(
           process.cwd(),
-          "uploads/VenderImage/profileImage"
+          "uploads/VendorImage/profileImage"
         );
       } else if (type === "VENDOR" && file.fieldname === "previous_job") {
         uploadPath = path.join(
           process.cwd(),
-          "uploads/VenderImage/previousImage"
+          "uploads/VendorImage/previousImage"
         );
       } else {
         return cb(new Error("Invalid upload type or field"), false);
