@@ -309,7 +309,7 @@ export const updateUserProfile = async (req, res) => {
       lon,
       type, // USER or VENDOR
       status,
-    } = req.body;
+    } = req.query;
 
     const user = await User.findOne({ id: Number(user_id) });
     if (!user) {
@@ -351,7 +351,13 @@ export const updateUserProfile = async (req, res) => {
     user.emergency = emergency || user.emergency;
     user.charges = charges || user.charges;
     user.enter_hour_rate = enter_hour_rate || user.enter_hour_rate;
-    user.mobile = mobile || user.mobile;
+    // ✅ Simple update for mobile fields
+    if (mobile) {
+      user.mobile = mobile;
+      user.mobile_with_code = `+91${mobile}`;
+    }
+
+   
     user.email = email || user.email;
     user.address = address || user.address;
     user.lat = lat || user.lat;
