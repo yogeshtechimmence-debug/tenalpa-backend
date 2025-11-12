@@ -67,7 +67,6 @@ export const AddServices = async (req, res) => {
   }
 };
 
-
 // Get All Services
 export const getAllServices = async (req, res) => {
   try {
@@ -128,7 +127,7 @@ export const GetServicesByvendor = async (req, res) => {
 //  UPDATE SERVICES
 export const UpdateServices = async (req, res) => {
   try {
-    const {id, services_category, sub_category, servies_price, description } =
+    const { id, services_category, sub_category, servies_price, description } =
       req.query;
 
     if (!id) {

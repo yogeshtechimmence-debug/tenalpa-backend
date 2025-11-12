@@ -1,7 +1,7 @@
 import express from "express";
 import createMulter from "../../middleware/upload.js";
 import { createBanner,getBanners,} from "../../controller/User/BannerController.js";
-import { createCategory,getAllCategories,} from "../../controller/User/HomeCategory.js";
+import { getAllCategories,} from "../../controller/User/HomeCategory.js";
 import { AddSubCategory,GetSubCategory,} from "../../controller/User/SubCategory.js";
 import { DeleteJob,getQuotes,getSingleJob,PostJob,} from "../../controller/User/JobPostController.js";
 import { getUserRequests,SendRequest,} from "../../controller/Vendor/RequestController.js";
@@ -30,9 +30,6 @@ router.get("/get_banner", getBanners);
 
 // ---------------- Category Route -----------------------
 
-const CategoryImage = createMulter("UserImage", "categoryImage");
-
-router.post("/add_category", CategoryImage.single("image"), createCategory);
 router.get("/get_all_categories", getAllCategories);
 
 // ----------------Sub Category Route -----------------------

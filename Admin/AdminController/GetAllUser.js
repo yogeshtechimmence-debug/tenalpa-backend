@@ -1,4 +1,5 @@
 import User from "../../Model/CommonModel/UserAuthModel.js";
+import nodemailer from "nodemailer";
 
 //  Get All Normal Users (type: USER)
 export const getAllUsers = async (req, res) => {
@@ -55,7 +56,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-
 export const deleteUsers = async (req, res) => {
   try {
     const { ids } = req.body;
@@ -82,3 +82,84 @@ export const deleteUsers = async (req, res) => {
     });
   }
 };
+
+export const sendMail = async (req, res) => {
+  try {
+    const { email, subject, message } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: 0,
+        message: "Email is required",
+      });
+    }
+
+    // 1. Transporter create karo
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // 2. Mail details
+    let info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: subject || "Default Subject",
+      text: message || "Hello user",
+    });
+
+    return res.status(200).json({
+      status: 1,
+      message: "Mail sent successfully",
+      info,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: "Something went wrong",
+      error,
+    });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({
+        status: "0",
+        message: "user_id is required",
+      });
+    }
+
+    const user = await User.findOne({ id: Number(user_id) });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "0",
+        message: "User not found",
+      });
+    }
+
+    // Convert to object and remove sensitive data
+    const userData = user.toObject();
+    delete userData.password;
+
+    res.status(200).json({
+      status: "1",
+      message: "User profile fetched successfully",
+      result: userData,
+    });
+  } catch (error) {
+    console.error("Get Profile Error:", error);
+    res.status(500).json({
+      status: "0",
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
