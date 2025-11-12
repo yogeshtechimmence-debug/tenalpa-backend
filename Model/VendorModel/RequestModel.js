@@ -18,7 +18,6 @@ const RequestSchema = new mongoose.Schema(
     notes: { type: String },
     status: {
       type: String,
-      enum : ["Pending", "Upcoming", "Ongoing", "Complate"],
     },
   },
   { timestamps: true }

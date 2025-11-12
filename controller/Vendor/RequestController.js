@@ -63,7 +63,6 @@ export const SendRequest = async (req, res) => {
       notes,
       full_name: `${userData.first_name} ${userData.last_name}`,
       user_mobile: userData.mobile,
-      status: "Pending",
     });
 
     // Auto-Increment Booking ID
