@@ -56,28 +56,49 @@ export const AddSubCategory = async (req, res) => {
 // GET ALL CATEGORIES
 export const AllSubCategories = async (req, res) => {
   try {
-    // Fetch all categories (oldest first → ascending order)
-    const categories = await SubCategory.find().sort({ id: 1 });
+    const { page = 1, limit = 10, search = "" } = req.query;
 
-    // If no data found
-    if (!categories || categories.length === 0) {
+    const skip = (page - 1) * limit;
+
+    // Search filter (by name or id)
+    const filter = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { id: Number(search) || 0 }, // if numeric id search
+          ],
+        }
+      : {};
+
+    // Total count for pagination
+    const totalCount = await SubCategory.countDocuments(filter);
+
+    // Get paginated data
+    const categories = await SubCategory.find(filter)
+      .sort({ id: 1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    if (!categories.length) {
       return res.status(404).json({
         status: 0,
-        message: "No categories found",
+        message: "No subcategories found",
       });
     }
 
-    // Success response
     res.status(200).json({
       status: 1,
-      message: "Categories fetched successfully",
+      message: "Subcategories fetched successfully",
       result: categories,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: Number(page),
+      totalCount,
     });
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error("Error fetching subcategories:", error);
     res.status(500).json({
       status: 0,
-      message: "Server error while fetching categories",
+      message: "Server error while fetching subcategories",
       error: error.message,
     });
   }

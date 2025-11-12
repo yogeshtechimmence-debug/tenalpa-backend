@@ -16,9 +16,7 @@ const RequestSchema = new mongoose.Schema(
     Date: { type: String },
     time: { type: String },
     notes: { type: String },
-    status: {
-      type: String,
-    },
+    
   },
   { timestamps: true }
 );
