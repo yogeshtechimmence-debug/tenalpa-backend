@@ -53,6 +53,6 @@ router.delete("/delete_subcategory/:id", deleteSubCategory);
 
 router.get("/get_single_subcategory/:id", getSingleSubCategory);
 
-router.put("/update_subcategory/:id",CategoryImage.single("image"), updateSubCategory);
+router.put("/update_subcategory/:id",SubCategoryImage.single("image"), updateSubCategory);
 
 export default router;
