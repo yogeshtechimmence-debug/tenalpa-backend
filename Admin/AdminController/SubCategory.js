@@ -186,7 +186,7 @@ export const updateSubCategory = async (req, res) => {
     const { name } = req.body;
 
     const image = req.file
-      ? `https://tenalpa-backend.onrender.com/uploads/UserImage/categoryImage/${req.file.filename}`
+      ? `https://tenalpa-backend.onrender.com/uploads/UserImage/subCategory/${req.file.filename}`
       : undefined;
 
     if (!id) {
