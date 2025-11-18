@@ -27,9 +27,9 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use("/tenalpa/api", router);
+app.use("/tenalpa/admin", adminRoute); 
 app.use("/tenalpa/api", websocketRoute); 
 
-app.use("/tenalpa/admin", adminRoute); 
 
 // DB connection
 MongoDb();

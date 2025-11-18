@@ -43,6 +43,7 @@ import {
   planList,
   updatePlan,
 } from "../AdminController/plan.js";
+import { getSinglePage, updatePage } from "../AdminController/Page.js";
 
 const router = express.Router();
 
@@ -139,5 +140,9 @@ router.post("/create", createPlan);
 router.get("/list", planList);
 router.delete("/delete/:planId", deletePlan);
 router.put("/update/:planId", updatePlan);
+
+// -----------------------------SinglePage-------------------------
+router.get("/pages/:pageType",getSinglePage);
+router.put("/pages/update/:pageType",updatePage);
 
 export default router;
