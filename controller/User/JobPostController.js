@@ -121,7 +121,7 @@ export const getSingleJob = async (req, res) => {
 // get all vendor quote
 export const getQuotes = async (req, res) => {
   try {
-    const { job_id } = req.query;
+    const { job_id, user_id } = req.query;
 
     if (!job_id) {
       return res.status(400).json({
@@ -131,7 +131,7 @@ export const getQuotes = async (req, res) => {
     }
 
     // Step 1: Get all quotes for job_id
-    const quotes = await Quote.find({ job_id: Number(job_id) }).sort({ id: 1 });
+    const quotes = await Quote.find({ job_id: Number(job_id), user_id: Number(user_id) }).sort({ id: 1 });
 
     if (quotes.length === 0) {
       return res.status(404).json({

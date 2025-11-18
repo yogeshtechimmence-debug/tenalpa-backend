@@ -3,7 +3,7 @@ import createMulter from "../../middleware/upload.js";
 import { getAllJobs, SendQuote } from "../../controller/Vendor/SendQuotController.js";
 import { AddServices, DeleteServices, GetServicesByvendor, UpdateServices } from "../../controller/Vendor/AddServicesController.js";
 import { DeleteRequest, getVendorRequests } from "../../controller/Vendor/RequestController.js";
-import { AcceptBooking, CancelBooking, ComplateBooking, getBookings, getTodayBooking, MarkStart } from "../../controller/Vendor/VendorBooking.js";
+import { AcceptRequest, CancelBooking, ComplateBooking, getBookings, getTodayBooking, MarkStart } from "../../controller/Vendor/VendorBooking.js";
 import { downloadInvoicePDF, getInvoice } from "../../controller/Vendor/inVoice.js";
 
 const router = express.Router();
@@ -41,12 +41,12 @@ router.get("/download-invoice", downloadInvoicePDF);
 
 // ---------------- Send Route  -----------------------
 
-router.post("/accept_booking", AcceptBooking);
+router.post("/accept_request", AcceptRequest);
 router.get("/get_booking", getBookings);
 router.post("/mark_start", MarkStart);
 router.post("/complate_booking", ComplateBooking);
-router.get("/get_today_booking", getTodayBooking);
 router.post("/cancel_booking", CancelBooking);
+router.get("/get_today_booking", getTodayBooking);
 
 
 

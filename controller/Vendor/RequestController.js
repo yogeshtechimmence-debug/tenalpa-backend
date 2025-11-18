@@ -1,20 +1,13 @@
 import Request from "../../Model/VendorModel/RequestModel.js";
 import User from "../../Model/CommonModel/UserAuthModel.js";
 import Services from "../../Model/VendorModel/AddServicesModel.js";
-import UserBooking from "../../Model/UserModel/UserBookingModel.js";
+import Booking from "../../Model/CommonModel/Booking.js";
 
 //  New Request Controller
 export const SendRequest = async (req, res) => {
   try {
-    const { 
-      user_id, 
-      serviece_id, 
-      serviece_type, 
-      location, 
-      Date, 
-      time, 
-      notes 
-    } = req.query; 
+    const { user_id, serviece_id, serviece_type, location, Date, time, notes } =
+      req.query;
 
     // Required fields
     if (!user_id || !serviece_id || !Date || !time || !location) {
@@ -27,21 +20,26 @@ export const SendRequest = async (req, res) => {
     // Check User
     const userData = await User.findOne({ id: user_id });
     if (!userData) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Check Service
     const servicesData = await Services.findOne({ id: serviece_id });
     if (!servicesData) {
-      return res.status(404).json({ success: false, message: "Service not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Service not found" });
     }
 
     // Check Vendor
     const VendorData = await User.findOne({ id: servicesData.user_id });
     if (!VendorData) {
-      return res.status(404).json({ success: false, message: "Vendor not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Vendor not found" });
     }
-
 
     // Auto-Increment Request ID
     const lastRequest = await Request.findOne().sort({ id: -1 });
@@ -65,41 +63,43 @@ export const SendRequest = async (req, res) => {
       user_mobile: userData.mobile,
     });
 
-    // Auto-Increment Booking ID
-    const lastBooking = await UserBooking.findOne().sort({ id: -1 });
-    const newBookingId = lastBooking ? lastBooking.id + 1 : 1;
+    const lastBooking = await Booking.findOne().sort({ id: -1 });
+    const bookId = lastBooking ? lastBooking.id + 1 : 1;
 
-    // Create Booking
-    const userBooking = new UserBooking({
-      id: newBookingId,
+    const AllBooking = new Booking({
+      id: bookId,
       request_id: newId,
       user_id,
       vendor_id: servicesData.user_id,
       service_id: servicesData.id,
       vendor_name: `${VendorData.first_name} ${VendorData.last_name}`,
       vendor_image: VendorData.image,
-      serviece_price: servicesData.servies_price,
+      vendor_phone: VendorData.mobile,
+      user_name: userData.first_name,
+      full_name: userData.last_name,
+      user_mobile: userData.mobile,
+      user_image: userData.image,
+      service_price: servicesData.servies_price,
       serviece_type,
-      // schedule_date: Date,
-      // schedule_time: time,
+      notes,
+      Date,
+      time,
       schedule: `${Date} ${time}`,
       location,
       status: "Pending",
     });
 
-    await userBooking.save();
+    await AllBooking.save();
     await newRequest.save();
 
-    console.log(userBooking,"------------------user")
-    console.log(newRequest,"------------------vendor")
-
+    console.log(AllBooking, "------------------Booking");
+    console.log(newRequest, "------------------vendor");
 
     res.status(201).json({
       success: true,
       message: "Request created successfully",
       data: newRequest,
     });
-
   } catch (error) {
     console.error("Error creating request:", error);
     res.status(500).json({

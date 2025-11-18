@@ -9,19 +9,12 @@ const bannerSchema = new mongoose.Schema(
     },
     name: {
       type: String,
-      required: true,
     },
     image: {
       type: String,
-      required: true,
     },
-    complate_image: {
+    link: {
       type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
     },
   },
   { timestamps: true }

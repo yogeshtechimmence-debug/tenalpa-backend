@@ -1,7 +1,6 @@
 import User from "../../Model/CommonModel/UserAuthModel.js";
 import nodemailer from "nodemailer";
 
-//  Get All Normal Users (type: USER)
 export const getAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 10, search = "", type } = req.query;
@@ -26,11 +25,15 @@ export const getAllUsers = async (req, res) => {
           totalPages: 0,
           currentPage: Number(page),
           totalUsers: 0,
+          totalVendors: 0,
         });
       }
     }
 
     const skip = (Number(page) - 1) * Number(limit);
+
+    const totalUsers = await User.countDocuments({ type: "USER" });
+    const totalVendors = await User.countDocuments({ type: "VENDOR" });
 
     const total = await User.countDocuments(query);
     const users = await User.find(query)
@@ -44,7 +47,9 @@ export const getAllUsers = async (req, res) => {
       result: users,
       totalPages: Math.ceil(total / limit),
       currentPage: Number(page),
-      totalUsers: total,
+      totalUsers: totalUsers, 
+      totalVendors: totalVendors,
+      total: total,
     });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -162,4 +167,4 @@ export const getUserProfile = async (req, res) => {
       error: error.message,
     });
   }
-}
+};

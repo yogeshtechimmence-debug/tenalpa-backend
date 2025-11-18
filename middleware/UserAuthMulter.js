@@ -2,8 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-
-const  createAuthMulter = () => {
+const createAuthMulter = () => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       const type = (req.body.type || req.query.type || "").toUpperCase();

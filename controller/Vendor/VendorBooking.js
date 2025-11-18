@@ -1,125 +1,43 @@
-import Request from "../../Model/VendorModel/RequestModel.js";
-import VendorBooking from "../../Model/VendorModel/VendorBookingModel.js";
-import User from "../../Model/CommonModel/UserAuthModel.js";
-import UserNotification from "../../Model/UserModel/UserNotification.js";
-import { sendNotification } from "../Common/SendNotification.js";
-import UserBooking from "../../Model/UserModel/UserBookingModel.js";
+import Booking from "../../Model/CommonModel/Booking.js";
 
 // AcceptBooking
-export const AcceptBooking = async (req, res) => {
+export const AcceptRequest = async (req, res) => {
   try {
-    const { request_id } = req.query;
+    const { request_id, user_id } = req.query; // user id me vendor id send kr rha hu ---------
 
-    if (!request_id) {
+    if (!request_id || !user_id) {
       return res.status(400).json({
         success: false,
-        message: "Request ID is required",
+        message: "Both request_id and user_id are required",
       });
     }
 
-    //  Find the request by ID
-    const requestData = await Request.findOne({
+    // Check if booking already exists for this request & user
+    const existingBooking = await Booking.findOne({
       request_id: Number(request_id),
+      vendor_id: Number(user_id),
     });
 
-    if (!requestData) {
-      return res.status(404).json({
-        success: false,
-        message: "Request not found",
+    if (existingBooking) {
+      // Update status to 'Upcoming'
+      await Booking.updateOne(
+        { request_id: Number(request_id), vendor_id: Number(user_id) },
+        { $set: { status: "Upcoming" } }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Booking status updated to Upcoming successfully",
       });
     }
 
-    //  Find vendor data
-    const VendorData = await User.findOne({
-      id: Number(requestData.vendor_id),
-    });
-
-    //  Create new notification
-    const notification = await UserNotification.findOne().sort({ id: -1 });
-    const notificationId = notification ? notification.id + 1 : 1;
-
-    const newNotification = new UserNotification({
-      id: notificationId,
-      user_id: requestData.user_id,
-      vendor_id: VendorData.id,
-      notification_title: "Your service booking is confirmed!",
-      notification_discription:
-        "We’ve notified the Vendor. They’ll reach out soon.",
-      serviece_id: requestData.serviece_id,
-      serviece_type: requestData.serviece_type,
-      location: requestData.location,
-      Date: requestData.Date,
-      time: requestData.time,
-      vendor_mobile: VendorData.mobile,
-      vendor_name: `${VendorData.first_name} ${VendorData.last_name}`,
-      vendor_image: VendorData.image,
-    });
-
-    await newNotification.save();
-
-    //  Create booking entry
-    const lastBooking = await VendorBooking.findOne().sort({ id: -1 });
-    const newId = lastBooking ? lastBooking.id + 1 : 1;
-
-    const newBooking = new VendorBooking({
-      id: newId,
-      request_id: requestData.request_id,
-      user_id: requestData.user_id,
-      vendor_id: requestData.vendor_id,
-      serviece_id: requestData.serviece_id,
-      serviece_price: requestData.serviece_price,
-      serviece_type: requestData.serviece_type,
-      user_image: requestData.user_image,
-      location: requestData.location,
-      Date: requestData.Date,
-      time: requestData.time,
-      notes: requestData.notes,
-      full_name: requestData.full_name,
-      user_mobile: requestData.user_mobile,
-      status: "Upcoming",
-    });
-
-    await newBooking.save();
-
-    // 1. Request status update
-    await Request.updateOne(
-      { request_id: request_id }, // Request ka id
-      { $set: { status: "Upcoming" } }
-    );
-
-    // 2. UserBooking status update
-    await UserBooking.updateOne(
-      { request_id: request_id }, 
-      { $set: { status: "Upcoming" } }
-    );
-
-    await Request.deleteOne({ request_id: Number(request_id) });
-
-    //  Find the user to send push notification
-    const userData = await User.findOne({ id: Number(requestData.user_id) });
-
-    if (userData) {
-      //  Send push notification to iPhone (via FCM)
-      await sendNotification(userData, {
-        title: "Your service booking is confirmed!",
-        message: "We’ve notified the Vendor. They’ll reach out soon.",
-        type: "BOOKING_CONFIRMATION",
-        data: {
-          booking_id: String(newBooking.id),
-          vendor_name: `${VendorData.first_name} ${VendorData.last_name}`,
-          type: "BOOKING_CONFIRMATION",
-        },
-      });
-    }
-
-    // Response
-    res.status(200).json({
-      success: true,
-      message: "Request accepted successfully and booking created",
-      result: newBooking,
+    //  If no existing booking found
+    return res.status(404).json({
+      success: false,
+      message: "No booking found with given request_id and user_id",
     });
   } catch (error) {
-    console.error("Error accepting request:", error);
+    console.error("Error in AcceptRequest:", error);
     res.status(500).json({
       success: false,
       message: "Server error while accepting request",
@@ -131,73 +49,68 @@ export const AcceptBooking = async (req, res) => {
 // Get All Bookings by user_id
 export const getBookings = async (req, res) => {
   try {
-    const { user_id } = req.query;
-
+    const { user_id, status } = req.query;
     if (!user_id) {
-      return res.status(400).json({
-        success: false,
-        message: "user_id is required",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "user_id is required" });
     }
-    // Find all bookings by user_id (ascending order)
-    const bookings = await VendorBooking.find({
-      user_id: Number(user_id),
-    }).sort({
-      id: 1,
-    });
-
+    const query = {
+      $or: [{ user_id: Number(user_id) }, { vendor_id: Number(user_id) }],
+    };
+    if (status) {
+      query.status = status;
+    }
+    const bookings = await Booking.find(query).sort({ id: 1 });
     if (!bookings.length) {
-      return res.status(404).json({
-        success: false,
-        message: "No bookings found for this user",
-      });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "No bookings found for this user/vendor",
+        });
     }
-
-    res.status(200).json({
-      message: "Booking get successfully",
-      success: true,
-      total_bookings: bookings.length,
-      result: bookings,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Bookings fetched successfully",
+        result: bookings,
+      });
   } catch (error) {
     console.error("Error fetching user bookings:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching bookings",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Server error while fetching bookings",
+        error: error.message,
+      });
   }
 };
 
 // Mark as Started
 export const MarkStart = async (req, res) => {
   try {
-    const { request_id } = req.query;
+    const { book_id } = req.query;
 
-    if (!request_id) {
+    if (!book_id) {
       return res.status(400).json({
         success: false,
-        message: "request_id is required",
+        message: "book_id is required",
       });
     }
 
     // VendorBooking status update
-    const vendorUpdate = await VendorBooking.updateOne(
-      { request_id: Number(request_id) },
-      { $set: { status: "Ongoing" } }
-    );
-
-    // UserBooking status update
-    const userUpdate = await UserBooking.updateOne(
-      { request_id: Number(request_id) },
+    const Ongoing_booking = await Booking.updateOne(
+      { id: Number(book_id) },
       { $set: { status: "Ongoing" } }
     );
 
     return res.status(200).json({
       success: true,
       message: "Booking successfully marked as STARTED",
-      vendor_update: vendorUpdate,
-      user_update: userUpdate,
+      result: Ongoing_booking,
     });
   } catch (error) {
     console.error("Error marking booking start:", error);
@@ -212,32 +125,25 @@ export const MarkStart = async (req, res) => {
 // Complate booking
 export const ComplateBooking = async (req, res) => {
   try {
-    const { request_id } = req.query;
+    const { book_id } = req.query;
 
-    if (!request_id) {
+    if (!book_id) {
       return res.status(400).json({
         success: false,
-        message: "request_id is required",
+        message: "book_id is required",
       });
     }
 
     // VendorBooking status update
-    const vendorUpdate = await VendorBooking.updateOne(
-      { request_id: request_id },
-      { $set: { status: "Complate" } }
-    );
-
-    // UserBooking status update
-    const userUpdate = await UserBooking.updateOne(
-      { request_id: request_id },
+    const Complate_booking = await Booking.updateOne(
+      { id: book_id },
       { $set: { status: "Complate" } }
     );
 
     return res.status(200).json({
       success: true,
       message: "Booking successfully Complate",
-      vendor_update: vendorUpdate,
-      user_update: userUpdate,
+      result: Complate_booking,
     });
   } catch (error) {
     console.error("Error Complate bookings", error);
@@ -252,9 +158,9 @@ export const ComplateBooking = async (req, res) => {
 // Cancel Booking by id
 export const CancelBooking = async (req, res) => {
   try {
-    const { id, reason } = req.body; // reason in body
+    const { book_id, reason } = req.query; // reason in body
 
-    if (!id) {
+    if (!book_id) {
       return res.status(400).json({
         success: false,
         message: "Booking id is required",
@@ -269,9 +175,9 @@ export const CancelBooking = async (req, res) => {
     }
 
     // Find booking
-    const booking = await VendorBooking.findOne({ id: Number(id) });
+    const Cancel_booking = await Booking.findOne({ id: Number(book_id) });
 
-    if (!booking) {
+    if (!Cancel_booking) {
       return res.status(404).json({
         success: false,
         message: "Booking not found with this id",
@@ -286,17 +192,16 @@ export const CancelBooking = async (req, res) => {
     });
 
     // Update cancel info
-    booking.status = "Canceled";
-    booking.canceled_at = date;
-    booking.canceled_time = time;
-    booking.cancel_reason = reason;
+    Cancel_booking.status = "Cancelled";
+    Cancel_booking.canceled_time = time;
+    Cancel_booking.cancel_reason = reason;
 
-    await booking.save();
+    await Cancel_booking.save();
 
     res.status(200).json({
       success: true,
       message: "Booking canceled successfully",
-      data: booking,
+      result: Cancel_booking,
     });
   } catch (error) {
     console.error("Error canceling booking:", error);
@@ -327,8 +232,8 @@ export const getTodayBooking = async (req, res) => {
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 
-    const todayBookings = await VendorBooking.find({
-      user_id: Number(user_id),
+    const todayBookings = await Booking.find({
+      vendor_id: Number(user_id),
       createdAt: {
         $gte: startOfDay,
         $lte: endOfDay,
@@ -357,6 +262,3 @@ export const getTodayBooking = async (req, res) => {
     });
   }
 };
-
-
-

@@ -1,7 +1,8 @@
-import UserBooking from "../../Model/UserModel/UserBookingModel.js";
 import RescheduleModel from "../../Model/UserModel/RescheduleModel.js";
 import UserNotification from "../../Model/UserModel/UserNotification.js";
 import User from "../../Model/CommonModel/UserAuthModel.js";
+import Booking from "../../Model/CommonModel/Booking.js";
+
 
 
 export const RescheduleService = async (req, res) => {
@@ -18,7 +19,7 @@ export const RescheduleService = async (req, res) => {
 
     // Step 1: Get user and booking
     const userData = await User.findOne({ id: Number(user_id) });
-    const booking = await UserBooking.findOne({ id: Number(book_id) });
+    const booking = await Booking.findOne({ id: Number(book_id) });
 
     if (!booking) {
       return res.status(404).json({
@@ -28,12 +29,12 @@ export const RescheduleService = async (req, res) => {
     }
 
     // Save old date & time BEFORE updating
-    const oldDate = booking.date;
+    const oldDate = booking.Date;
     const oldTime = booking.time;
     const vendorId = booking.vendor_id 
 
     // Step 2: Update booking
-    booking.date = date;
+    booking.Date = date;
     booking.time = time;
     await booking.save();
 

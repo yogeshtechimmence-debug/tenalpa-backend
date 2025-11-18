@@ -50,15 +50,7 @@ export const registerUser = async (req, res) => {
     }
 
     //  Common validation for all users
-    if (
-      !first_name ||
-      !last_name ||
-      !mobile ||
-      !email ||
-      !password ||
-      !address ||
-      !type
-    ) {
+    if (!first_name || !last_name || !mobile || !email || !password || !type) {
       return res.status(400).json({
         status: "0",
         message: "All required fields must be filled",
@@ -66,14 +58,7 @@ export const registerUser = async (req, res) => {
     }
 
     //  Type-specific validation
-    if (type === "USER") {
-      if (!abn_number || !business_name) {
-        return res.status(400).json({
-          status: "0",
-          message: "ABN number and business name are required for users",
-        });
-      }
-    } else if (type === "VENDOR") {
+    if (type === "VENDOR") {
       if (
         !service_offered ||
         !availability ||
@@ -357,7 +342,6 @@ export const updateUserProfile = async (req, res) => {
       user.mobile_with_code = `+91${mobile}`;
     }
 
-   
     user.email = email || user.email;
     user.address = address || user.address;
     user.lat = lat || user.lat;
