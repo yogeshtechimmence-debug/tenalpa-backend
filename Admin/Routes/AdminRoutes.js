@@ -42,7 +42,7 @@ import {
   deletePlan,
   planList,
   updatePlan,
-} from "../AdminController/plan.js";
+} from "../AdminController/Plan.js";
 import { getSinglePage, updatePage } from "../AdminController/Page.js";
 
 const router = express.Router();
