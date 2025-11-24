@@ -221,3 +221,9 @@ export const uploadChatImage = async (req, res) => {
     });
   }
 };
+
+export const getonlineUser = async (req, res) =>{
+    const alluser =  User.find()
+
+    console.log("o0nlimne user gety successfully")
+}
